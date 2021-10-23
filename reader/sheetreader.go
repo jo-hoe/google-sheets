@@ -12,12 +12,8 @@ type SheetReadCloser struct {
 	readerCloser io.ReadCloser
 }
 
-// good description of how the URL is build can be found in this post https://stackoverflow.com/a/33727897/11951869
-// offical information sources:
-// - https://developers.google.com/chart/interactive/docs/spreadsheets
-// - https://developers.google.com/chart/interactive/docs/querylanguage
-// - https://developers.google.com/chart/interactive/docs/dev/implementing_data_source
-const csvUrlTemplate = "https://docs.google.com/spreadsheets/d/%s/gviz/tq?tqx=out:csv&sheet=%s"
+// a description of how the URL is build can be found in this post https://stackoverflow.com/a/28494469/11951869
+const csvUrlTemplate = "https://docs.google.com/spreadsheets/d/%s/export?format=csv&sheet=%s"
 
 func NewSheetReader(client *http.Client, spreadSheatId string, sheetName string) (*SheetReadCloser, error) {
 	readerCloser, err := getFile(client, spreadSheatId, sheetName)
