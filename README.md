@@ -1,2 +1,10 @@
-# google-sheets
-idiomatic way to read data from google sheets
+# Google Sheets
+
+Idiomatic way to read data from google sheets.
+
+## Google Sheets Authorization
+
+In case you want to access private files, a OAuth authentication is needed.
+The offical documentation can be found here: <https://developers.google.com/sheets/api/guides/authorizing>.
+Note, that there is no possiblity to reduce the API access to only a specific file.
+To mitigate that, consider to use a dedicated google user to access files.
