@@ -7,6 +7,7 @@ import (
 	"net/url"
 )
 
+// wrapper for io.ReaderCloser
 type SheetReadCloser struct {
 	io.ReadCloser
 	readerCloser io.ReadCloser
