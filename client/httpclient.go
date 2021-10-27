@@ -2,9 +2,9 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
@@ -14,21 +14,12 @@ import (
 
 const Scopes = "https://www.googleapis.com/auth/spreadsheets.readonly"
 
-// NewSpreadsheetClient creates a http client to access non-public spreedsheets.
-func NewSpreadsheetClient(clientCredentialsJson string, token *oauth2.Token, saveToken func(token *oauth2.Token)) (*http.Client, error) {
-	oauthConfig, err := google.ConfigFromJSON([]byte(clientCredentialsJson), Scopes)
+// NewServiceAccountClient creates a http client to access non-public spreedsheets.
+func NewServiceAccountClient(ctx context.Context, clientCredentialsJson string) (*http.Client, error) {
+	clientCredentials := []byte(clientCredentialsJson)
+	config, err := google.JWTConfigFromJSON(clientCredentials, Scopes)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to parse client secret file to config: %v", err)
 	}
-	ctx := context.Background()
-	tokenSource := oauthConfig.TokenSource(ctx, token)
-	newToken, err := tokenSource.Token()
-	if err != nil {
-		return nil, err
-	}
-
-	if saveToken != nil {
-		saveToken(newToken)
-	}
-	return oauth2.NewClient(ctx, tokenSource), nil
+	return config.Client(ctx), nil
 }
