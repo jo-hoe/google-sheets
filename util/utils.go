@@ -1,5 +1,7 @@
 package util
 
+import "fmt"
+
 func CSVSlicesToMap(csvData [][]string) map[string][]string {
 	result := make(map[string][]string)
 	if len(csvData) == 0 {
@@ -26,4 +28,21 @@ func GetMaxLengthOfSlices(item map[string][]string) int {
 	}
 
 	return max
+}
+
+// Checks if key are in map. If all key are found the returned error will be nil
+// otherwise an error will be returned
+func ValidatedKeys(items map[string][]string, keysToValidate ...string) error {
+	missingKeys := make([]string, 0)
+
+	for _, key := range keysToValidate {
+		if _, ok := items[key]; !ok {
+			missingKeys = append(missingKeys, key)
+		}
+	}
+
+	if len(missingKeys) != 0 {
+		return fmt.Errorf("missing the following keys '%v'", missingKeys)
+	}
+	return nil
 }

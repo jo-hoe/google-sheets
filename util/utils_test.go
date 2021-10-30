@@ -82,3 +82,53 @@ func TestGetMaxLengthOfSlices(t *testing.T) {
 		})
 	}
 }
+
+func TestValidatedKeys(t *testing.T) {
+	type args struct {
+		items          map[string][]string
+		keysToValidate []string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "All item in map",
+			args: args{
+				items: map[string][]string{
+					"Title1": {"A1"},
+					"Title2": {"B1", "B2"},
+				},
+				keysToValidate: []string{"Title1", "Title2"},
+			},
+			wantErr: false,
+		}, {
+			name: "One missing key",
+			args: args{
+				items: map[string][]string{
+					"Title1": {"A1"},
+				},
+				keysToValidate: []string{"Title1", "Title2"},
+			},
+			wantErr: true,
+		}, {
+			name: "Validate subset of keys",
+			args: args{
+				items: map[string][]string{
+					"Title1": {"A1"},
+					"Title2": {"B1", "B2"},
+				},
+				keysToValidate: []string{"Title2"},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := ValidatedKeys(tt.args.items, tt.args.keysToValidate...); (err != nil) != tt.wantErr {
+				t.Errorf("ValidatedKeys() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
