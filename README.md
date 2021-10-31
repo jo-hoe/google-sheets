@@ -10,3 +10,19 @@ Idiomatic way to read data from google sheets.
 The offical documentation can be found here: <https://developers.google.com/sheets/api/guides/authorizing>.
 Note, that there is no possiblity to reduce the API access to only a specific file.
 To mitigate that, consider to use a dedicated service account.
+
+## Linting
+
+Project used `golangci-lint` for linting. You can download it by executing
+
+```cli
+go get github.com/golangci/golangci-lint/cmd/golangci-lint
+```
+
+and run the linting locally by executing
+
+```cli
+golangci-lint run ./...
+```
+
+in the working directory

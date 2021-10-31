@@ -78,7 +78,10 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 	// unmarshal into struct
 	stringOutput := buffer.String()
 	result := partialSheetResult{}
-	json.Unmarshal([]byte(stringOutput), &result)
+	err = json.Unmarshal([]byte(stringOutput), &result)
+	if err != nil {
+		return nil, err
+	}
 	if result.Values == nil {
 		return nil, fmt.Errorf("could not read 'values' api answer from %v", stringOutput)
 	}
