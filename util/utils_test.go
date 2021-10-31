@@ -48,6 +48,18 @@ func TestCSVToMap(t *testing.T) {
 				},
 			},
 			want: map[string][]string{},
+		}, {
+			name: "Whitespace in title",
+			args: args{
+				csvData: [][]string{
+					{"\t Title1 \n"},
+					{"A1 "},
+					{"A2"},
+				},
+			},
+			want: map[string][]string{
+				"Title1": {"A1 ", "A2"},
+			},
 		},
 	}
 	for _, tt := range tests {

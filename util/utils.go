@@ -11,15 +11,18 @@ func CSVSlicesToMap(csvData [][]string) map[string][]string {
 		return result
 	}
 
-	// copy headers
-	for _, header := range csvData[0] {
-		result[header] = make([]string, len(csvData)-1)
+	// create headers
+	headers := make([]string, len(csvData[0]))
+	for i, header := range csvData[0] {
+		headers[i] = strings.TrimSpace(header)
+		// add headers a key in map
+		result[headers[i]] = make([]string, len(csvData)-1)
 	}
 
 	// insert values
 	for i := 1; i < len(csvData); i++ {
 		for j, cell := range csvData[i] {
-			result[csvData[0][j]][i-1] = cell
+			result[headers[j]][i-1] = cell
 		}
 	}
 	return result
