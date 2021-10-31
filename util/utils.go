@@ -1,6 +1,9 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func CSVSlicesToMap(csvData [][]string) map[string][]string {
 	result := make(map[string][]string)
@@ -42,7 +45,7 @@ func ValidatedKeys(items map[string][]string, keysToValidate ...string) error {
 	}
 
 	if len(missingKeys) != 0 {
-		return fmt.Errorf("missing the following keys '%v'", missingKeys)
+		return fmt.Errorf("missing the following keys [%v]", strings.Join(missingKeys, ","))
 	}
 	return nil
 }
