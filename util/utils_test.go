@@ -18,15 +18,36 @@ func TestCSVToMap(t *testing.T) {
 			name: "Positive Test",
 			args: args{
 				csvData: [][]string{
-					{"Title1", "Title2"},
-					{"A1", "A2"},
-					{"B1", "B2"},
+					{"Title1", "Title2", "Title3"},
+					{"A1", "B1", "C1"},
+					{"A2", "B2", "C2"},
 				},
 			},
 			want: map[string][]string{
 				"Title1": {"A1", "A2"},
 				"Title2": {"B1", "B2"},
+				"Title3": {"C1", "C2"},
 			},
+		}, {
+			name: "Headers only",
+			args: args{
+				csvData: [][]string{
+					{"Title1", "Title2", "Title3"},
+				},
+			},
+			want: map[string][]string{
+				"Title1": {},
+				"Title2": {},
+				"Title3": {},
+			},
+		}, {
+			name: "Empty",
+			args: args{
+				csvData: [][]string{
+					{},
+				},
+			},
+			want: map[string][]string{},
 		},
 	}
 	for _, tt := range tests {

@@ -11,11 +11,14 @@ func CSVSlicesToMap(csvData [][]string) map[string][]string {
 		return result
 	}
 
-	header := csvData[0]
+	for _, header := range csvData[0] {
+		result[header] = make([]string, len(csvData)-1)
+	}
+
 	for i := 1; i < len(csvData); i++ {
-		value := make([]string, 0)
-		value = append(value, csvData[i]...)
-		result[header[i-1]] = value
+		for j, cell := range csvData[i] {
+			result[csvData[0][j]][i-1] = cell
+		}
 	}
 	return result
 }
