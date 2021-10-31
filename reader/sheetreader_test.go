@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func TestNewSheetReader(t *testing.T) {
+func Test_NewSheetReader(t *testing.T) {
 	readerCloser, err := NewSheetReader(createMockClient(), "spreadSheatId", "sheetName")
 	if err != nil {
 		t.Errorf("error found during http reqest %v", err)
@@ -55,7 +55,7 @@ func createMockClient() *http.Client {
 		return &http.Response{
 			StatusCode: 200,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString("\"0\",\"1\"\n\"2\",\"3\"")),
+			Body: ioutil.NopCloser(bytes.NewBufferString("{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"0\",\"1\"],[\"2\",\"3\"]]}")),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
@@ -78,7 +78,7 @@ func Test_truncateExtraneousData(t *testing.T) {
 			args: args{
 				reader: ioutil.NopCloser(strings.NewReader("{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"a\",\"b\"],[\"1\",\"2\"]]}")),
 			},
-			want: "[[\"a\",\"b\"],[\"1\",\"2\"]]",
+			want: "\"a\",\"b\"\n\"1\",\"2\"",
 		}, {
 			name:    "Not readable values",
 			wantErr: true,
@@ -91,7 +91,7 @@ func Test_truncateExtraneousData(t *testing.T) {
 			args: args{
 				reader: ioutil.NopCloser(strings.NewReader("{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[]}")),
 			},
-			want: "[]",
+			want: "",
 		},
 	}
 	for _, tt := range tests {

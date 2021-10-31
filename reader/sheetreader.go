@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // wrapper for io.ReaderCloser
@@ -78,14 +79,26 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 	stringOutput := buffer.String()
 	result := partialSheetResult{}
 	json.Unmarshal([]byte(stringOutput), &result)
-
-	// convert string back to reader closer
-	jsonBytes, err := json.Marshal(result.Values)
-	if err != nil {
-		return nil, err
-	}
 	if result.Values == nil {
 		return nil, fmt.Errorf("could not read 'values' api answer from %v", stringOutput)
 	}
-	return ioutil.NopCloser(bytes.NewReader(jsonBytes)), nil
+
+	// string to csv readble
+	var stringBuilder strings.Builder
+	for i, rows := range result.Values {
+		for j, cell := range rows {
+			stringBuilder.WriteString("\"")
+			stringBuilder.WriteString(cell)
+			stringBuilder.WriteString("\"")
+			if j+1 < len(result.Values) {
+				stringBuilder.WriteString(",")
+			}
+		}
+
+		if i+1 != len(result.Values) {
+			stringBuilder.WriteString("\n")
+		}
+	}
+
+	return ioutil.NopCloser(strings.NewReader(stringBuilder.String())), nil
 }
