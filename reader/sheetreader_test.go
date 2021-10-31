@@ -78,7 +78,7 @@ func Test_truncateExtraneousData(t *testing.T) {
 			args: args{
 				reader: ioutil.NopCloser(strings.NewReader("{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"a\",\"b\"],[\"1\",\"2\"]]}")),
 			},
-			want: "\"a\",\"b\"\n\"1\",\"2\"",
+			want: "a,b\n1,2\n",
 		}, {
 			name:    "Not readable values",
 			wantErr: true,

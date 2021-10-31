@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"strings"
 
 	"github.com/jo-hoe/google-sheets/client"
 	"github.com/jo-hoe/google-sheets/reader"
@@ -23,11 +22,7 @@ func main() {
 
 	readerCloser, err := reader.NewSheetReader(client, "1Ytu0Y6UbKewdoXlukrs1lQersBI4ynqILTuksgJAnFU", "Sheet2")
 
-	buf := new(strings.Builder)
-	io.Copy(buf, readerCloser)
-	// check errors
-	fmt.Println(buf.String())
-	//csv := csv.NewReader(readerCloser)
-	//csvResult, err := csv.ReadAll()
-	fmt.Printf("Error: %v", err)
+	csv := csv.NewReader(readerCloser)
+	csvResult, err := csv.ReadAll()
+	fmt.Printf("output: %v", csvResult)
 }
