@@ -62,11 +62,12 @@ func getFile(httpClient *http.Client, spreadSheatId string, sheetName string) (i
 	return truncateExtraneousData(resp.Body)
 }
 
-// the api returns something like:
+// The api returns something like:
 // {"range":"Sheet2!A1:Z1000","majorDimension":"ROWS","values":[["a","b"],["1","2"]]}
-// only the values field will be contained in the reader
+// only the 'values' field is relevant. 
+// The returned reader will contain it in an 'encoding/csv' readable format
 func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
-	// not the fastest way to do thing but easy to read and maintain
+	// not the fastest way to do things but easy to read and maintain
 
 	// read complete string
 	buffer := new(bytes.Buffer)
@@ -75,7 +76,7 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	// unmarshal into struct
+	// unmarshal to struct
 	stringOutput := buffer.String()
 	result := partialSheetResult{}
 	err = json.Unmarshal([]byte(stringOutput), &result)
@@ -101,6 +102,6 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 		return nil, err
 	}
 
-	// return byte data as reader
+	// return data as reader
 	return ioutil.NopCloser(bytes.NewReader(output.Bytes())), nil
 }
