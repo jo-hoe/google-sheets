@@ -5,6 +5,29 @@
 
 Idiomatic way to read data from google sheets.
 
+## Example Useage
+
+```golang
+clientCredentialsJson := os.GetEnv("myClientCredentialJsonString")
+myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
+
+// sheet name can be taken from the URL
+// example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
+// the spreadsheet ID woudl be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
+readerCloser, err := reader.NewSheetReader(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1")
+if err != nil {
+  return nil, err
+} else {
+  defer closeReader(readerCloser)
+}
+csv := csv.NewReader(readerCloser)
+csvResult, err := csv.ReadAll()
+if err != nil {
+  return nil, err
+}
+fmt.Printf("results: %v", csvResult)
+```
+
 ## Google Sheets Authorization
 
 The offical documentation can be found here: <https://developers.google.com/sheets/api/guides/authorizing>.
