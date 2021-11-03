@@ -3,7 +3,7 @@
 [![Test Status](https://github.com/jo-hoe/google-sheets/workflows/test/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=test)
 [![Lint Status](https://github.com/jo-hoe/google-sheets/workflows/lint/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=lint)
 
-Idiomatic way to read data from google sheets.
+Provides an idiomatic way to read data from google sheets.
 
 ## Example Useage
 
@@ -13,7 +13,7 @@ myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
 
 // sheet name can be taken from the URL
 // example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
-// the spreadsheet ID woudl be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
+// the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
 readerCloser, err := reader.NewSheetReader(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1")
 if err != nil {
   return nil, err
