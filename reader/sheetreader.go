@@ -83,7 +83,7 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 		return nil, err
 	}
 	if result.Values == nil {
-		return nil, fmt.Errorf("could not read 'values' api answer from %v", stringOutput)
+		return nil, fmt.Errorf("could not read 'values' api answer from %v", buffer.String())
 	}
 
 	// write slices to csv data
