@@ -77,9 +77,8 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 	}
 
 	// unmarshal to struct
-	stringOutput := buffer.String()
 	result := partialSheetResult{}
-	err = json.Unmarshal([]byte(stringOutput), &result)
+	err = json.Unmarshal(buffer.Bytes(), &result)
 	if err != nil {
 		return nil, err
 	}
