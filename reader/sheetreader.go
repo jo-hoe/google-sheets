@@ -55,7 +55,7 @@ func getFile(httpClient *http.Client, spreadSheatId string, sheetName string) (i
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("could not get sheet: %d: %s", resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("could not get sheet from url '%s'\nerror %d: %s", url, resp.StatusCode, resp.Status)
 	}
 
 	defer resp.Body.Close()
