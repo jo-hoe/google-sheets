@@ -27,8 +27,8 @@ type partialSheetResult struct {
 // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
 const csvUrlTemplate = "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s?alt=json&prettyPrint=false"
 
-func NewSheetReader(client *http.Client, spreadSheatId string, sheetName string) (*SheetReadCloser, error) {
-	readerCloser, err := getFile(client, spreadSheatId, sheetName)
+func NewSheetReader(client *http.Client, spreadSheetId string, sheetName string) (*SheetReadCloser, error) {
+	readerCloser, err := getFile(client, spreadSheeId, sheetName)
 	if err != nil {
 		return nil, err
 	}
@@ -45,10 +45,10 @@ func (sheetReadCloser *SheetReadCloser) Close() error {
 	return sheetReadCloser.readerCloser.Close()
 }
 
-func getFile(httpClient *http.Client, spreadSheatId string, sheetName string) (io.ReadCloser, error) {
+func getFile(httpClient *http.Client, spreadSheetId string, sheetName string) (io.ReadCloser, error) {
 	// escape sheet name, since it may contain spaces and other URL incompatible characters
 	encodedSheetName := url.QueryEscape(sheetName)
-	url := fmt.Sprintf(csvUrlTemplate, spreadSheatId, encodedSheetName)
+	url := fmt.Sprintf(csvUrlTemplate, spreadSheetId, encodedSheetName)
 	resp, err := httpClient.Get(url)
 	if err != nil {
 		return nil, err
