@@ -11,15 +11,15 @@ Provides an idiomatic way to read data from google sheets.
 clientCredentialsJson := os.GetEnv("myClientCredentialJsonString")
 myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
 
-// sheet name can be taken from the URL
+// spread sheet id can be taken from the URL
 // example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
 // the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
 readerCloser, err := reader.NewSheetReader(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1")
+defer closeReader(readerCloser)
 if err != nil {
   return nil, err
-} else {
-  defer closeReader(readerCloser)
 }
+
 csv := csv.NewReader(readerCloser)
 csvResult, err := csv.ReadAll()
 if err != nil {
