@@ -28,7 +28,7 @@ type partialSheetResult struct {
 const csvUrlTemplate = "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s?alt=json&prettyPrint=false"
 
 func NewSheetReader(client *http.Client, spreadSheetId string, sheetName string) (*SheetReadCloser, error) {
-	readerCloser, err := getFile(client, spreadSheeId, sheetName)
+	readerCloser, err := getFile(client, spreadSheetId, sheetName)
 	if err != nil {
 		return nil, err
 	}
