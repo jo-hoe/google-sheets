@@ -8,7 +8,10 @@ Provides an idiomatic way to read data from google sheets.
 ## Example Useage
 
 ```golang
+// Creating a http client with credentials of service account.
 clientCredentialsJson := os.GetEnv("myClientCredentialJsonString")
+// If sheet is public, a regular client can also be used e.g.:
+// myClient := http.Client{}
 myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
 
 // spread sheet id can be taken from the URL
