@@ -37,6 +37,9 @@ The offical documentation can be found here: <https://developers.google.com/shee
 Note, that there is no possiblity to reduce the API access to only a specific file.
 To mitigate that, consider to use a dedicated service account.
 
+After creating the key do not forget to enable it for the sheet api
+https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=<google project id>
+
 ## Linting
 
 Project used `golangci-lint` for linting. You can download it by executing

@@ -11,14 +11,25 @@ import (
 	"net/url"
 )
 
+const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
+
 // url is reverse engineered from:
 // https://github.com/googleapis/google-api-go-client/blob/bc181c33247b7fe3d06d2d7139da0fa06fabbd71/sheets/v4/sheets-gen.go#L14283
 // but it is also described here:
 // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
-const csvUrlTemplate = "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s?alt=json&prettyPrint=false"
+const csvUrlTemplate = baseUrl + "/values/%s?alt=json&prettyPrint=false"
 
 type partialSheetResult struct {
 	Values [][]string `json:"values"`
+}
+
+type spreadSheets struct {
+	Sheets []struct {
+		Properties struct {
+			SheetID int    `json:"sheetId"`
+			Title   string `json:"title"`
+		} `json:"properties"`
+	} `json:"sheets"`
 }
 
 type SheetsApiWrapper struct {
@@ -46,6 +57,43 @@ func (wrapper SheetsApiWrapper) GetSheetData(spreadSheetId string, sheetName str
 
 	defer resp.Body.Close()
 	return truncateExtraneousData(resp.Body)
+}
+
+func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (int, error) {
+	url := fmt.Sprintf(baseUrl, spreadSheetId)
+	resp, err := wrapper.httpClient.Get(url)
+	if err != nil {
+		return -1, err
+	}
+
+	result, err := deserialize[spreadSheets](resp.Body, spreadSheets{})
+	if err != nil {
+		return -1, err
+	}
+	// {Sheets:[{Properties:{SheetID:0 Title:Sheet1}} {Properties:{SheetID:2047441944 Title:Sheet2}}]}
+	for _, sheet := range result.(spreadSheets).Sheets {
+		if sheet.Properties.Title == sheetName{
+			return sheet.Properties.SheetID, nil
+		}
+	}
+	return -1, nil
+}
+
+func deserialize[T any](reader io.ReadCloser, in any) (out any, err error) {
+	defer reader.Close()
+	
+	buffer := new(bytes.Buffer)
+	_, err = buffer.ReadFrom(reader)
+	if err != nil {
+		return nil, err
+	}
+	// unmarshal to struct
+	result := spreadSheets{}
+	err = json.Unmarshal(buffer.Bytes(), &result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 // The api returns something like:
