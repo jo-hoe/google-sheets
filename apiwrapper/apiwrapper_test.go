@@ -2,15 +2,52 @@ package apiwrapper
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/jo-hoe/google-sheets/client"
 )
 
+func Test_GetSheetId(t *testing.T) {
+	expected := 2047441944
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+		ResponseBody: fmt.Sprintf(`{
+			"sheets": [{
+					"properties": {
+						"sheetId": 0,
+						"title": "Sheet1"
+					}
+				}, {
+					"properties": {
+						"sheetId": %d,
+						"title": "Sheet2"
+					}
+				}
+			]
+		}`, expected),
+	}
+	mockClient := client.CreateMockClient(mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	actual, err := wrappper.GetSheetId("spreadSheatId", "Sheet2")
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+	if actual != expected {
+		t.Errorf("expected %d but found %d", expected, actual)
+	}
+}
+
 func Test_NewSheetReader(t *testing.T) {
-	wrappper := NewSheetsApiWrapper(CreateMockClient())
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+		ResponseBody: "{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"0\",\"1\"],[\"2\",\"3\"]]}",
+	}
+	wrappper := NewSheetsApiWrapper(client.CreateMockClient(mockResponse))
 
 	actual, err := wrappper.GetSheetData("spreadSheatId", "sheetName")
 	if err != nil {

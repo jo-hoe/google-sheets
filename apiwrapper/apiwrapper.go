@@ -70,7 +70,7 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 	if err != nil {
 		return -1, err
 	}
-	// {Sheets:[{Properties:{SheetID:0 Title:Sheet1}} {Properties:{SheetID:2047441944 Title:Sheet2}}]}
+	
 	for _, sheet := range result.(spreadSheets).Sheets {
 		if sheet.Properties.Title == sheetName{
 			return sheet.Properties.SheetID, nil

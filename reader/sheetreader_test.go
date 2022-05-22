@@ -5,11 +5,16 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jo-hoe/google-sheets/apiwrapper"
+	"github.com/jo-hoe/google-sheets/client"
 )
 
 func Test_NewSheetReader(t *testing.T) {
-	readerCloser, err := NewSheetReader(apiwrapper.CreateMockClient(), "spreadSheatId", "sheetName")
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+		ResponseBody: "{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"0\",\"1\"],[\"2\",\"3\"]]}",
+	}
+	mock := client.CreateMockClient(mockResponse)
+	readerCloser, err := NewSheetReader(mock, "spreadSheatId", "sheetName")
 	if err != nil {
 		t.Errorf("error found during http reqest %v", err)
 	} else {

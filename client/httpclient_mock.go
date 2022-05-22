@@ -1,10 +1,15 @@
-package apiwrapper
+package client
 
 import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
 )
+
+type ResponseSummery struct {
+	ResponseCode int
+	ResponseBody string
+}
 
 // RoundTripFunc .
 type RoundTripFunc func(req *http.Request) *http.Response
@@ -21,12 +26,14 @@ func NewMockClient(fn RoundTripFunc) *http.Client {
 	}
 }
 
-func CreateMockClient() *http.Client {
+func CreateMockClient(summeries ...ResponseSummery) *http.Client {
+	i := -1
 	return NewMockClient(func(req *http.Request) *http.Response {
+		i = i + 1
 		return &http.Response{
-			StatusCode: 200,
+			StatusCode: summeries[i].ResponseCode,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString("{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"0\",\"1\"],[\"2\",\"3\"]]}")),
+			Body: ioutil.NopCloser(bytes.NewBufferString(summeries[i].ResponseBody)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
