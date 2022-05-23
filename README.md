@@ -38,7 +38,7 @@ Note, that there is no possiblity to reduce the API access to only a specific fi
 To mitigate that, consider to use a dedicated service account.
 
 After creating the key do not forget to enable it for the sheet api
-https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=<google project id>
+https://console.cloud.google.com/apis/library/sheets.googleapis.com?project= [project id]
 
 ## Todo
 - read sheet ✔
