@@ -46,7 +46,7 @@ https://console.cloud.google.com/apis/library/sheets.googleapis.com?project= [pr
 - rename sheet
 - delete sheet
 - write in a sheet
-- fit column length
+- fit column length (see https://stackoverflow.com/questions/49970988/how-to-autofit-column-width-with-google-sheets-api)
 - copy sheet
   
 ## Linting
