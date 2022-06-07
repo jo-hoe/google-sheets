@@ -42,7 +42,7 @@ func Test_GetSheetId(t *testing.T) {
 	}
 }
 
-func Test_NewSheetReader(t *testing.T) {
+func Test_GetSheetData(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
 		ResponseBody: "{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"0\",\"1\"],[\"2\",\"3\"]]}",
