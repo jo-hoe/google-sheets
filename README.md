@@ -38,8 +38,17 @@ Note, that there is no possiblity to reduce the API access to only a specific fi
 To mitigate that, consider to use a dedicated service account.
 
 After creating the key do not forget to enable it for the sheet api
-https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=<google project id>
+https://console.cloud.google.com/apis/library/sheets.googleapis.com?project= [project id]
 
+## Todo
+- read sheet ✔
+- create sheet
+- rename sheet
+- delete sheet
+- write in a sheet
+- fit column length (see https://stackoverflow.com/questions/49970988/how-to-autofit-column-width-with-google-sheets-api)
+- copy sheet
+  
 ## Linting
 
 Project used `golangci-lint` for linting. You can download it by executing
