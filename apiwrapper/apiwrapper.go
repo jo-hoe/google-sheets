@@ -11,34 +11,30 @@ import (
 	"net/url"
 )
 
-const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
+const baseUrl = "https://sheets.googleapis.com/v4/SpreadSheets/%s"
 
 // url is reverse engineered from:
 // https://github.com/googleapis/google-api-go-client/blob/bc181c33247b7fe3d06d2d7139da0fa06fabbd71/sheets/v4/sheets-gen.go#L14283
 // but it is also described here:
-// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
+// https://developers.google.com/sheets/api/reference/rest/v4/SpreadSheets.values/get
 const csvUrlTemplate = baseUrl + "/values/%s?alt=json&prettyPrint=false"
-const updateUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s:batchUpdate"
+const updateUrl = "https://sheets.googleapis.com/v4/SpreadSheets/%s:batchUpdate"
 
 type partialSheetResult struct {
 	Values [][]string `json:"values"`
 }
 
-type spreadSheets struct {
-	Sheets []struct {
-		Properties struct {
-			SheetID int    `json:"sheetId"`
-			Title   string `json:"title"`
-		} `json:"properties"`
-	} `json:"sheets"`
+type SpreadSheet struct {
+	Sheets []Sheet `json:"sheets"`
 }
 
-type duplicateSheet struct {
-	DuplicateSheet struct {
-		SourceSheetId    int    `json:"sourceSheetId"`
-		InsertSheetIndex int    `json:"insertSheetIndex"`
-		NewSheetName     string `json:"newSheetName"`
-	} `json:"duplicateSheet"`
+type Sheet struct {
+	Properties SpreadSheetProperties `json:"properties"`
+}
+
+type SpreadSheetProperties struct {
+	SheetID int    `json:"sheetId"`
+	Title   string `json:"title"`
 }
 
 type SheetsApiWrapper struct {
@@ -51,35 +47,42 @@ func NewSheetsApiWrapper(httpClient *http.Client) *SheetsApiWrapper {
 	}
 }
 
-func (wrapper SheetsApiWrapper) DuplicateSheet(spreadSheetId string, sheetId int, newSheetName string) error {
-	body := duplicateSheet{}
-	body.DuplicateSheet.InsertSheetIndex = 0
-	body.DuplicateSheet.SourceSheetId = sheetId
-	body.DuplicateSheet.NewSheetName = newSheetName
+func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName string) (out *Sheet, err error) {
+	body := SpreadSheet{}
+	body.Sheets = append(body.Sheets, Sheet{
+		SpreadSheetProperties{
+			Title: sheetName,
+		},
+	})
 
 	payloadBuf := new(bytes.Buffer)
-	err := json.NewEncoder(payloadBuf).Encode(body)
+	err = json.NewEncoder(payloadBuf).Encode(body)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	req, _ := http.NewRequest("POST", fmt.Sprintf(updateUrl, spreadSheetId), payloadBuf)
+	req, err := http.NewRequest("POST", fmt.Sprintf(updateUrl, SpreadSheetId), payloadBuf)
+	if err != nil {
+		return nil, err
+	}
 
 	response, err := wrapper.httpClient.Do(req)
+	result := Sheet{}
+	err = deserialize[SpreadSheet](response.Body, &result)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if response.StatusCode != 200 {
-		return fmt.Errorf("Response was '%d': %s", response.StatusCode, response.Status)
+		return nil, fmt.Errorf("Response was '%d': %s", response.StatusCode, response.Status)
 	}
 
-	return nil
+	return &result, nil
 }
 
-func (wrapper SheetsApiWrapper) GetSheetData(spreadSheetId string, sheetName string) (io.ReadCloser, error) {
+func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName string) (io.ReadCloser, error) {
 	// escape sheet name, since it may contain spaces and other URL incompatible characters
 	encodedSheetName := url.QueryEscape(sheetName)
-	url := fmt.Sprintf(csvUrlTemplate, spreadSheetId, encodedSheetName)
+	url := fmt.Sprintf(csvUrlTemplate, SpreadSheetId, encodedSheetName)
 	resp, err := wrapper.httpClient.Get(url)
 	if err != nil {
 		return nil, err
@@ -93,15 +96,15 @@ func (wrapper SheetsApiWrapper) GetSheetData(spreadSheetId string, sheetName str
 	return truncateExtraneousData(resp.Body)
 }
 
-func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (int, error) {
-	url := fmt.Sprintf(baseUrl, spreadSheetId)
+func (wrapper SheetsApiWrapper) GetSheetId(SpreadSheetId string, sheetName string) (int, error) {
+	url := fmt.Sprintf(baseUrl, SpreadSheetId)
 	resp, err := wrapper.httpClient.Get(url)
 	if err != nil {
 		return -1, err
 	}
 
-	result := spreadSheets{}
-	err = deserialize[spreadSheets](resp.Body, &result)
+	result := SpreadSheet{}
+	err = deserialize[SpreadSheet](resp.Body, &result)
 	if err != nil {
 		return -1, err
 	}

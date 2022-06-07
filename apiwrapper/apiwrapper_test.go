@@ -42,6 +42,33 @@ func Test_GetSheetId(t *testing.T) {
 	}
 }
 
+func Test_CreateSheet(t *testing.T) {
+	expected := 2047441944
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+		ResponseBody: fmt.Sprintf(`{
+			"properties": {
+				"sheetId": %d,
+				"title": "Sheet1"
+			}
+		}`, expected),
+	}
+	mockClient := client.CreateMockClient(mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	actual, err := wrappper.CreateSheet("spreadSheatId", "Sheet2")
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+
+	if err != nil {
+		t.Error("expected no error but found", err)
+	}
+
+	if actual.Properties.SheetID != expected {
+		t.Errorf("expected %d but found %d", expected, actual.Properties.SheetID)
+	}
+}
+
 func Test_GetSheetData(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
