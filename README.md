@@ -43,7 +43,7 @@ After creating the key do not forget to enable it for the sheet api
 ## Todo
 
 - read sheet ✔
-- create sheet
+- create sheet ? (not integration tested)
 - rename sheet
 - delete sheet
 - write in a sheet
