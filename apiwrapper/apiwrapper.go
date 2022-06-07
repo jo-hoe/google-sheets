@@ -58,7 +58,10 @@ func (wrapper SheetsApiWrapper) DuplicateSheet(spreadSheetId string, sheetId int
 	body.DuplicateSheet.NewSheetName = newSheetName
 
 	payloadBuf := new(bytes.Buffer)
-	json.NewEncoder(payloadBuf).Encode(body)
+	err := json.NewEncoder(payloadBuf).Encode(body)
+	if err != nil {
+		return err
+	}
 	req, _ := http.NewRequest("POST", fmt.Sprintf(updateUrl, spreadSheetId), payloadBuf)
 
 	response, err := wrapper.httpClient.Do(req)

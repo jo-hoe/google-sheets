@@ -41,23 +41,26 @@ After creating the key do not forget to enable it for the sheet api
 https://console.cloud.google.com/apis/library/sheets.googleapis.com?project= [project id]
 
 ## Todo
+
 - read sheet ✔
 - create sheet
 - rename sheet
 - delete sheet
 - write in a sheet
-- fit column length (see https://stackoverflow.com/questions/49970988/how-to-autofit-column-width-with-google-sheets-api)
+- fit column length (see <https://stackoverflow.com/questions/49970988/how-to-autofit-column-width-with-google-sheets-api>)
 - copy sheet
   
 ## Linting
 
-Project used `golangci-lint` for linting. You can download it by executing
+Project used `golangci-lint` for linting.
 
-```cli
-go get github.com/golangci/golangci-lint/cmd/golangci-lint
-```
+### Installation
 
-and run the linting locally by executing
+<https://golangci-lint.run/usage/install/>
+
+### Execution
+
+Run the linting locally by executing
 
 ```cli
 golangci-lint run ./...

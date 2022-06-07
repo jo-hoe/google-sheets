@@ -55,7 +55,10 @@ func Test_GetSheetData(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(actual)
+	_, err = buf.ReadFrom(actual)
+	if err != nil {
+		t.Errorf("found error %v", err)
+	}
 	stringActual := buf.String()
 	expected := "0,1\n2,3\n"
 
