@@ -46,7 +46,7 @@ After creating the key do not forget to enable it for the sheet api
 - create sheet ? (not integration tested)
 - rename sheet ? (not integration tested)
 - delete sheet ? (not integration tested)
-- write in a sheet
+- write in a sheet ? (not integration tested)
 - fit column length ? (not integration tested)
   
 ## Linting
