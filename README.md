@@ -44,11 +44,10 @@ After creating the key do not forget to enable it for the sheet api
 
 - read sheet ✔
 - create sheet ? (not integration tested)
-- rename sheet
-- delete sheet
+- rename sheet ? (not integration tested)
+- delete sheet ? (not integration tested)
 - write in a sheet
-- fit column length (see <https://stackoverflow.com/questions/49970988/how-to-autofit-column-width-with-google-sheets-api>)
-- copy sheet
+- fit column length ? (not integration tested)
   
 ## Linting
 

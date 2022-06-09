@@ -69,6 +69,70 @@ func Test_CreateSheet(t *testing.T) {
 	}
 }
 
+func Test_AutoResizeSheet(t *testing.T) {
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+	}
+	mockClient := client.CreateMockClient(mockResponse, mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	err := wrappper.AutoResizeSheet("spreadSheatId", 1)
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+
+	if err != nil {
+		t.Error("expected no error but found", err)
+	}
+}
+
+func Test_WriteSheet(t *testing.T) {
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+	}
+	mockClient := client.CreateMockClient(mockResponse, mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	err := wrappper.AutoResizeSheet("spreadSheatId", 1)
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+
+	if err != nil {
+		t.Error("expected no error but found", err)
+	}
+}
+
+func Test_Rename(t *testing.T) {
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+	}
+	mockClient := client.CreateMockClient(mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	err := wrappper.RenameSheet("spreadSheatId", 1, "Sheet2")
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+
+	if err != nil {
+		t.Error("expected no error but found", err)
+	}
+}
+
+func Test_Delete(t *testing.T) {
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+	}
+	mockClient := client.CreateMockClient(mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	err := wrappper.DeleteSheet("spreadSheatId", 1)
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+
+	if err != nil {
+		t.Error("expected no error but found", err)
+	}
+}
+
 func Test_GetSheetData(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,

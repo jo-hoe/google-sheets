@@ -11,30 +11,69 @@ import (
 	"net/url"
 )
 
-const baseUrl = "https://sheets.googleapis.com/v4/SpreadSheets/%s"
+const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
 
 // url is reverse engineered from:
 // https://github.com/googleapis/google-api-go-client/blob/bc181c33247b7fe3d06d2d7139da0fa06fabbd71/sheets/v4/sheets-gen.go#L14283
 // but it is also described here:
-// https://developers.google.com/sheets/api/reference/rest/v4/SpreadSheets.values/get
+// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
 const csvUrlTemplate = baseUrl + "/values/%s?alt=json&prettyPrint=false"
-const updateUrl = "https://sheets.googleapis.com/v4/SpreadSheets/%s:batchUpdate"
+const updateSheetUrl = baseUrl + ":batchUpdate"
+const updateValuesUrl = baseUrl + "/values:batchUpdate"
 
-type partialSheetResult struct {
+type values struct {
 	Values [][]string `json:"values"`
 }
 
-type SpreadSheet struct {
-	Sheets []Sheet `json:"sheets"`
+type spreadSheet struct {
+	Sheets []sheet `json:"sheets"`
 }
 
-type Sheet struct {
-	Properties SpreadSheetProperties `json:"properties"`
+type sheet struct {
+	Properties spreadSheetProperties `json:"properties"`
 }
 
-type SpreadSheetProperties struct {
+type spreadSheetProperties struct {
 	SheetID int    `json:"sheetId"`
 	Title   string `json:"title"`
+}
+
+type batchRequest struct {
+	UpdateSheetProperties updateSheetProperties `json:"updateSheetProperties"`
+	DeleteSheet           deleteSheet           `json:"deleteSheet"`
+	AutoResizeDimensions  autoResizeDimensions  `json:"autoResizeDimensions"`
+}
+
+type updateSheetProperties struct {
+	Properties     spreadSheetProperties `json:"properties"`
+	FieldsToUpdate string                `json:"fields"`
+}
+
+type deleteSheet struct {
+	SheetId int `json:"sheetId"`
+}
+
+type autoResizeDimensions struct {
+	Dimensions dimensions `json:"dimensions"`
+}
+
+type dimensions struct {
+	SheetId   int    `json:"sheetId"`
+	Dimension string `json:"dimension"`
+}
+
+type vauleInput struct {
+	ValueInputOption          string     `json:"valueInputOption"`
+	ValueRange                valueRange `json:"data"`
+	IncludeValuesInResponse   bool       `json:"includeValuesInResponse"`
+	ResponseValueRenderOption string     `json:"responseValueRenderOption"`
+	DateTimeRenderOption      string     `json:"responseDateTimeRenderOption"`
+}
+
+type valueRange struct {
+	Range          string `json:"range"`
+	MajorDimension string `json:"majorDimension"`
+	Values         values `json:"values"`
 }
 
 type SheetsApiWrapper struct {
@@ -47,27 +86,92 @@ func NewSheetsApiWrapper(httpClient *http.Client) *SheetsApiWrapper {
 	}
 }
 
-func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName string) (out *Sheet, err error) {
-	body := SpreadSheet{}
-	body.Sheets = append(body.Sheets, Sheet{
-		SpreadSheetProperties{
+func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName string) (out *sheet, err error) {
+	body := spreadSheet{}
+	body.Sheets = append(body.Sheets, sheet{
+		spreadSheetProperties{
 			Title: sheetName,
 		},
 	})
 
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(baseUrl, ""), body)
+	result := sheet{}
+	err = deserialize[spreadSheet](response, &result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (wrapper SheetsApiWrapper) RenameSheet(spreadSheatId string, sheetId int, newSheetName string) (err error) {
+	body := batchRequest{}
+	body.UpdateSheetProperties = updateSheetProperties{
+		FieldsToUpdate: "title",
+		Properties: spreadSheetProperties{
+			Title: newSheetName,
+		},
+	}
+
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheatId string, sheetId int) (err error) {
+	body := batchRequest{}
+	body.DeleteSheet = deleteSheet{
+		SheetId: sheetId,
+	}
+
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheatId string, sheetId int) (err error) {
+	body := batchRequest{}
+	body.AutoResizeDimensions = autoResizeDimensions{
+		Dimensions: dimensions{
+			SheetId:   sheetId,
+			Dimension: "ROWS",
+		},
+	}
+
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+	if err != nil {
+		return err
+	}
+	body.AutoResizeDimensions.Dimensions.Dimension = "COLUMNS"
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.ReadCloser, err error) {
 	payloadBuf := new(bytes.Buffer)
 	err = json.NewEncoder(payloadBuf).Encode(body)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf(updateUrl, SpreadSheetId), payloadBuf)
+	req, err := http.NewRequest("POST", url, payloadBuf)
 	if err != nil {
 		return nil, err
 	}
 
 	response, err := wrapper.httpClient.Do(req)
-	result := Sheet{}
-	err = deserialize[SpreadSheet](response.Body, &result)
 
 	if err != nil {
 		return nil, err
@@ -76,7 +180,7 @@ func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName stri
 		return nil, fmt.Errorf("Response was '%d': %s", response.StatusCode, response.Status)
 	}
 
-	return &result, nil
+	return response.Body, nil
 }
 
 func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName string) (io.ReadCloser, error) {
@@ -96,15 +200,15 @@ func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName str
 	return truncateExtraneousData(resp.Body)
 }
 
-func (wrapper SheetsApiWrapper) GetSheetId(SpreadSheetId string, sheetName string) (int, error) {
-	url := fmt.Sprintf(baseUrl, SpreadSheetId)
+func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (int, error) {
+	url := fmt.Sprintf(baseUrl, spreadSheetId)
 	resp, err := wrapper.httpClient.Get(url)
 	if err != nil {
 		return -1, err
 	}
 
-	result := SpreadSheet{}
-	err = deserialize[SpreadSheet](resp.Body, &result)
+	result := spreadSheet{}
+	err = deserialize[spreadSheet](resp.Body, &result)
 	if err != nil {
 		return -1, err
 	}
@@ -115,6 +219,23 @@ func (wrapper SheetsApiWrapper) GetSheetId(SpreadSheetId string, sheetName strin
 		}
 	}
 	return -1, fmt.Errorf("sheet was not found")
+}
+
+func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName string, data values) (err error) {
+	body := vauleInput{}
+	body.ValueRange.Range = sheetName
+	body.ValueInputOption = "USER_ENTERED"
+	body.ValueRange.MajorDimension = "COLUMS"
+	body.DateTimeRenderOption = "FORMATTED_STRING"
+	body.IncludeValuesInResponse = false
+	body.ValueRange.Values = data
+
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheatId), body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func deserialize[T any](reader io.ReadCloser, in any) (err error) {
@@ -139,8 +260,8 @@ func deserialize[T any](reader io.ReadCloser, in any) (err error) {
 // The returned reader will contain it in an 'encoding/csv' readable format
 func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 	// not the fastest way to do things but easy to read and maintain
-	result := partialSheetResult{}
-	err := deserialize[partialSheetResult](reader, &result)
+	result := values{}
+	err := deserialize[values](reader, &result)
 	if err != nil {
 		return nil, err
 	}
