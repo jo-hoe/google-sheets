@@ -221,14 +221,16 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 	return -1, fmt.Errorf("sheet was not found")
 }
 
-func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName string, data values) (err error) {
+func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName string, data [][]string) (err error) {
 	body := vauleInput{}
 	body.ValueRange.Range = sheetName
 	body.ValueInputOption = "USER_ENTERED"
 	body.ValueRange.MajorDimension = "COLUMS"
 	body.DateTimeRenderOption = "FORMATTED_STRING"
 	body.IncludeValuesInResponse = false
-	body.ValueRange.Values = data
+	body.ValueRange.Values = values{
+		Values: data,
+	}
 
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheatId), body)
 	if err != nil {

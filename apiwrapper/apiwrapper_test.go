@@ -91,7 +91,7 @@ func Test_WriteSheet(t *testing.T) {
 	}
 	mockClient := client.CreateMockClient(mockResponse, mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.AutoResizeSheet("spreadSheatId", 1)
+	err := wrappper.WriteSheet("spreadSheatId", "spreadSheetName", [][]string{})
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}
