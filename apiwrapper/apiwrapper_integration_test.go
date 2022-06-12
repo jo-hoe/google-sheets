@@ -2,19 +2,17 @@ package apiwrapper
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/jo-hoe/google-sheets/client"
 )
 
 func Test_Integration_Replace(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
-	sheetTestName := fmt.Sprintf("%s-%d", "test", time.Now().UnixMilli())
-	_, err := wrapper.CreateSheet(spreadSheetId, sheetTestName)
+
+	err := wrapper.ReplaceSheet(spreadSheetId, "Sheet4", [][]string{})
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}

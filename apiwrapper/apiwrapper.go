@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -35,14 +36,26 @@ type sheet struct {
 }
 
 type spreadSheetProperties struct {
-	SheetID int    `json:"sheetId"`
-	Title   string `json:"title"`
+	SheetID int    `json:"sheetId,omitempty"`
+	Title   string `json:"title,omitempty"`
+}
+
+type updateRequest struct {
+	Request                      []batchRequest `json:"requests,omitempty"`
+	IncludeSpreadsheetInResponse bool           `json:"includeSpreadsheetInResponse"`
+	ResponseRanges               []string       `json:"responseRanges,omitempty"`
+	ResponseIncludeGridData      bool           `json:"responseIncludeGridData"`
 }
 
 type batchRequest struct {
-	UpdateSheetProperties updateSheetProperties `json:"updateSheetProperties"`
-	DeleteSheet           deleteSheet           `json:"deleteSheet"`
-	AutoResizeDimensions  autoResizeDimensions  `json:"autoResizeDimensions"`
+	UpdateSheetProperties *updateSheetProperties `json:"updateSheetProperties,omitempty"`
+	DeleteSheet           *deleteSheet           `json:"deleteSheet,omitempty"`
+	AutoResizeDimensions  *autoResizeDimensions  `json:"autoResizeDimensions,omitempty"`
+	AddSheet              *addSheet              `json:"addSheet,omitempty"`
+}
+
+type addSheet struct {
+	Properties spreadSheetProperties `json:"properties,omitempty"`
 }
 
 type updateSheetProperties struct {
@@ -87,16 +100,17 @@ func NewSheetsApiWrapper(httpClient *http.Client) *SheetsApiWrapper {
 	}
 }
 
-func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName string) (out *sheet, err error) {
-	body := spreadSheet{}
-	body.Sheets = append(body.Sheets, sheet{
-		spreadSheetProperties{
-			Title:   sheetName,
-			SheetID: int(time.Now().UnixMilli()),
-		},
-	})
+func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetName string) (out *sheet, err error) {
+	body := updateRequest{}
+	body.Request = []batchRequest{{
+		AddSheet: &addSheet{
+			Properties: spreadSheetProperties{
+				Title:   sheetName,
+				SheetID: int(time.Now().UnixMilli()),
+			},
+		}}}
 
-	response, err := wrapper.postSheetRequest(fmt.Sprintf(baseUrl, ""), body)
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
 	if err != nil {
 		return nil, err
 	}
@@ -111,14 +125,14 @@ func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName stri
 }
 
 func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, oldSheetId int, newSheetId int, newSheetName string) (err error) {
-	body := batchRequest{}
-	body.UpdateSheetProperties = updateSheetProperties{
-		FieldsToUpdate: "sheetId,title",
-		Properties: spreadSheetProperties{
-			Title:   newSheetName,
-			SheetID: newSheetId,
-		},
-	}
+	body := updateRequest{}
+	body.Request = []batchRequest{{
+		UpdateSheetProperties: &updateSheetProperties{
+			FieldsToUpdate: "sheetId,title",
+			Properties: spreadSheetProperties{
+				Title:   newSheetName,
+				SheetID: newSheetId,
+			}}}}
 
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
 
@@ -130,10 +144,11 @@ func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, oldShe
 }
 
 func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheatId string, sheetId int) (err error) {
-	body := batchRequest{}
-	body.DeleteSheet = deleteSheet{
-		SheetId: sheetId,
-	}
+	body := updateRequest{}
+	body.Request = []batchRequest{{
+		DeleteSheet: &deleteSheet{
+			SheetId: sheetId,
+		}}}
 
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
 
@@ -145,19 +160,20 @@ func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheatId string, sheetId int) (
 }
 
 func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheatId string, sheetId int) (err error) {
-	body := batchRequest{}
-	body.AutoResizeDimensions = autoResizeDimensions{
-		Dimensions: dimensions{
-			SheetId:   sheetId,
-			Dimension: "ROWS",
-		},
-	}
+	body := updateRequest{}
+	body.Request = []batchRequest{{
+		AutoResizeDimensions: &autoResizeDimensions{
+			Dimensions: dimensions{
+				SheetId:   sheetId,
+				Dimension: "ROWS",
+			},
+		}}}
 
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
 	if err != nil {
 		return err
 	}
-	body.AutoResizeDimensions.Dimensions.Dimension = "COLUMNS"
+	body.Request[0].AutoResizeDimensions.Dimensions.Dimension = "COLUMNS"
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
 	if err != nil {
 		return err
@@ -167,23 +183,28 @@ func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheatId string, sheetId in
 }
 
 func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.ReadCloser, err error) {
-	payloadBuf := new(bytes.Buffer)
-	err = json.NewEncoder(payloadBuf).Encode(body)
+	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", url, payloadBuf)
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	request.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := wrapper.httpClient.Do(req)
+	response, err := wrapper.httpClient.Do(request)
 
 	if err != nil {
 		return nil, err
 	}
 	if response.StatusCode != 200 {
-		return nil, fmt.Errorf("Response was '%d': %s", response.StatusCode, response.Status)
+		responseBody, err := io.ReadAll(response.Body)
+		// b, err := ioutil.ReadAll(resp.Body)  Go.1.15 and earlier
+		if err != nil {
+			log.Fatalln(err)
+		}
+		return nil, fmt.Errorf("Response was '%s': %s", response.Status, string(responseBody))
 	}
 
 	return response.Body, nil
@@ -209,6 +230,11 @@ func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName str
 func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (int, error) {
 	url := fmt.Sprintf(baseUrl, spreadSheetId)
 	resp, err := wrapper.httpClient.Get(url)
+
+	if resp.StatusCode != 200 {
+		return -1, fmt.Errorf("could not get sheet from url '%s'\nerror %d: %s", url, resp.StatusCode, resp.Status)
+	}
+
 	if err != nil {
 		return -1, err
 	}
