@@ -66,3 +66,33 @@ golangci-lint run ./...
 ```
 
 in the working directory
+
+## Testing
+
+The project contains both unit and integrations tests.
+
+### Integration Test Exception
+
+A credentials file is need to start integration tests. You may use the following launch.json file
+
+```json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Integration Tests",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/apiwrapper/apiwrapper_integration_test.go",
+            "env": {
+                "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
+                "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"
+            },
+        }
+    ]
+}
+```
