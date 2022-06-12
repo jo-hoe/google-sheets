@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
@@ -95,6 +96,9 @@ func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName stri
 	})
 
 	response, err := wrapper.postSheetRequest(fmt.Sprintf(baseUrl, ""), body)
+	if err != nil {
+		return nil, err
+	}
 	result := sheet{}
 	err = deserialize[spreadSheet](response, &result)
 
@@ -239,6 +243,34 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName strin
 	}
 
 	return nil
+}
+
+func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheatId string, initialSheetName string, data [][]string) (err error) {
+	initialSheetId, err := wrapper.GetSheetId(spreadSheatId, initialSheetName)
+	if err != nil {
+		return err
+	}
+	newSheet, err := wrapper.CreateSheet(spreadSheatId, fmt.Sprintf("%s-%d", initialSheetName, time.Now().UnixMilli()))
+	if err != nil {
+		return err
+	}
+	err = wrapper.WriteSheet(spreadSheatId, initialSheetName, data)
+	if err != nil {
+		return err
+	}
+	err = wrapper.AutoResizeSheet(spreadSheatId, newSheet.Properties.SheetID)
+	if err != nil {
+		return err
+	}
+	err = wrapper.DeleteSheet(spreadSheatId, initialSheetId)
+	if err != nil {
+		return err
+	}
+	err = wrapper.UpdateSheetMetaData(spreadSheatId, newSheet.Properties.SheetID, initialSheetId, initialSheetName)
+	if err != nil {
+		return err
+	}
+	return err
 }
 
 func deserialize[T any](reader io.ReadCloser, in any) (err error) {

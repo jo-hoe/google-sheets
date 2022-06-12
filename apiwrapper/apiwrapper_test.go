@@ -43,19 +43,20 @@ func Test_GetSheetId(t *testing.T) {
 }
 
 func Test_CreateSheet(t *testing.T) {
-	expected := 2047441944
+	expectedId := 2047441944
+	expectedTitle := "Sheet1"
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
 		ResponseBody: fmt.Sprintf(`{
 			"properties": {
 				"sheetId": %d,
-				"title": "Sheet1"
+				"title": "%s"
 			}
-		}`, expected),
+		}`, expectedId, expectedTitle),
 	}
 	mockClient := client.CreateMockClient(mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	actual, err := wrappper.CreateSheet("spreadSheatId", "Sheet2")
+	actual, err := wrappper.CreateSheet("spreadSheatId", expectedTitle)
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}
@@ -64,8 +65,12 @@ func Test_CreateSheet(t *testing.T) {
 		t.Error("expected no error but found", err)
 	}
 
-	if actual.Properties.SheetID != expected {
-		t.Errorf("expected %d but found %d", expected, actual.Properties.SheetID)
+	if actual.Properties.SheetID != expectedId {
+		t.Errorf("expected %d but found %d", expectedId, actual.Properties.SheetID)
+	}
+
+	if actual.Properties.Title != expectedTitle {
+		t.Errorf("expected %s but found %s", expectedTitle, actual.Properties.Title)
 	}
 }
 
@@ -155,6 +160,37 @@ func Test_GetSheetData(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, stringActual) {
 		t.Errorf("expected '%v' found '%v'", expected, stringActual)
+	}
+}
+
+func Test_ReplaceSheet(t *testing.T) {
+	sheetsMockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+		ResponseBody: fmt.Sprint(`{
+			"sheets": [{
+					"properties": {
+						"sheetId": 1,
+						"title": "sheetName"
+					}
+				}
+			]
+		}`),
+	}
+	sheetMockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+		ResponseBody: fmt.Sprintf(`{
+			"properties": {
+				"sheetId": 1,
+				"title": "title"
+			}
+		}`),
+	}
+	mockClient := client.CreateMockClient(sheetsMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	err := wrappper.ReplaceSheet("spreadSheatId", "sheetName", [][]string{})
+
+	if err != nil {
+		t.Error("expected no error but found", err)
 	}
 }
 
