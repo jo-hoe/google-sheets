@@ -105,12 +105,13 @@ func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName stri
 	return &result, nil
 }
 
-func (wrapper SheetsApiWrapper) RenameSheet(spreadSheatId string, sheetId int, newSheetName string) (err error) {
+func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, oldSheetId int, newSheetId int, newSheetName string) (err error) {
 	body := batchRequest{}
 	body.UpdateSheetProperties = updateSheetProperties{
-		FieldsToUpdate: "title",
+		FieldsToUpdate: "sheetId,title",
 		Properties: spreadSheetProperties{
-			Title: newSheetName,
+			Title:   newSheetName,
+			SheetID: newSheetId,
 		},
 	}
 

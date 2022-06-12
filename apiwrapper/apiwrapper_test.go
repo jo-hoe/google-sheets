@@ -101,13 +101,13 @@ func Test_WriteSheet(t *testing.T) {
 	}
 }
 
-func Test_Rename(t *testing.T) {
+func Test_UpdateSheetMetaData(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
 	}
 	mockClient := client.CreateMockClient(mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.RenameSheet("spreadSheatId", 1, "Sheet2")
+	err := wrappper.UpdateSheetMetaData("spreadSheatId", 1, 1, "Sheet2")
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}
