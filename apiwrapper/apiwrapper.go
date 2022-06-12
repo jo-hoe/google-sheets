@@ -91,7 +91,8 @@ func (wrapper SheetsApiWrapper) CreateSheet(SpreadSheetId string, sheetName stri
 	body := spreadSheet{}
 	body.Sheets = append(body.Sheets, sheet{
 		spreadSheetProperties{
-			Title: sheetName,
+			Title:   sheetName,
+			SheetID: int(time.Now().UnixMilli()),
 		},
 	})
 
