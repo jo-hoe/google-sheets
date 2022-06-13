@@ -12,12 +12,22 @@ import (
 // https://developers.google.com/sheets/api/quickstart/go
 // for more details
 
-const Scopes = "https://www.googleapis.com/auth/spreadsheets.readonly"
+const ReadOnlyScopes = "https://www.googleapis.com/auth/spreadsheets.readonly"
+const ReadWriteScopes = "https://www.googleapis.com/auth/spreadsheets"
 
 // NewServiceAccountClient creates a http client to access non-public spreedsheets.
+// Account will only have read access
 func NewServiceAccountClient(ctx context.Context, clientCredentialsJson string) (*http.Client, error) {
+	return newServiceAccountClient(ctx, clientCredentialsJson, ReadOnlyScopes)
+}
+
+func NewReadWriteScopesServiceAccountClient(ctx context.Context, clientCredentialsJson string) (*http.Client, error) {
+	return newServiceAccountClient(ctx, clientCredentialsJson, ReadWriteScopes)
+}
+
+func newServiceAccountClient(ctx context.Context, clientCredentialsJson string, scopes string) (*http.Client, error) {
 	clientCredentials := []byte(clientCredentialsJson)
-	config, err := google.JWTConfigFromJSON(clientCredentials, Scopes)
+	config, err := google.JWTConfigFromJSON(clientCredentials, ReadOnlyScopes)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse client secret file to config: %v", err)
 	}

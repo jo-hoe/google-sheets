@@ -31,7 +31,7 @@ func createWrapper(t *testing.T) (wrapper *SheetsApiWrapper, spreadSheetId strin
 	if err != nil {
 		t.Skipf("Could not read file %+v", err)
 	}
-	httpClient, err := client.NewServiceAccountClient(context.Background(), string(content))
+	httpClient, err := client.NewReadWriteScopesServiceAccountClient(context.Background(), string(content))
 	if err != nil {
 		t.Skipf("Could not create client %+v", err)
 	}
