@@ -13,7 +13,7 @@ import (
 )
 
 func Test_GetSheetId(t *testing.T) {
-	expected := 2047441944
+	var expected int32 = 2047441944
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
 		ResponseBody: fmt.Sprintf(`{
@@ -43,20 +43,21 @@ func Test_GetSheetId(t *testing.T) {
 }
 
 func Test_CreateSheet(t *testing.T) {
-	expectedId := 2047441944
-	expectedTitle := "Sheet1"
+	var expectedId int32 = 2047441944
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
 		ResponseBody: fmt.Sprintf(`{
+			"spreadsheetId": "spreadSheetId",
+			"sheets": [{
 			"properties": {
 				"sheetId": %d,
-				"title": "%s"
-			}
-		}`, expectedId, expectedTitle),
+				"title": "Sheet1"
+			}}]
+		}`, expectedId),
 	}
 	mockClient := client.CreateMockClient(mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	actual, err := wrappper.CreateSheet("spreadSheatId", expectedTitle)
+	actual, err := wrappper.CreateSheet("spreadSheetId", "Sheet1")
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}
@@ -65,12 +66,8 @@ func Test_CreateSheet(t *testing.T) {
 		t.Error("expected no error but found", err)
 	}
 
-	if actual.Properties.SheetID != expectedId {
-		t.Errorf("expected %d but found %d", expectedId, actual.Properties.SheetID)
-	}
-
-	if actual.Properties.Title != expectedTitle {
-		t.Errorf("expected %s but found %s", expectedTitle, actual.Properties.Title)
+	if actual != expectedId {
+		t.Errorf("expected %d but found %d", expectedId, actual)
 	}
 }
 
