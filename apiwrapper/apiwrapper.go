@@ -231,12 +231,11 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 	url := fmt.Sprintf(baseUrl, spreadSheetId)
 	resp, err := wrapper.httpClient.Get(url)
 
-	if resp.StatusCode != 200 {
-		return -1, fmt.Errorf("could not get sheet from url '%s'\nerror %d: %s", url, resp.StatusCode, resp.Status)
-	}
-
 	if err != nil {
 		return -1, err
+	}
+	if resp.StatusCode != 200 {
+		return -1, fmt.Errorf("could not get sheet from url '%s'\nerror %d: %s", url, resp.StatusCode, resp.Status)
 	}
 
 	result := spreadSheet{}

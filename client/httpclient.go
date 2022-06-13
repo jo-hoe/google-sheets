@@ -27,7 +27,7 @@ func NewReadWriteScopesServiceAccountClient(ctx context.Context, clientCredentia
 
 func newServiceAccountClient(ctx context.Context, clientCredentialsJson string, scopes string) (*http.Client, error) {
 	clientCredentials := []byte(clientCredentialsJson)
-	config, err := google.JWTConfigFromJSON(clientCredentials, ReadOnlyScopes)
+	config, err := google.JWTConfigFromJSON(clientCredentials, scopes)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse client secret file to config: %v", err)
 	}
