@@ -35,7 +35,7 @@ func Test_Integration_Create_Delete(t *testing.T) {
 		t.Errorf("Expected Id %d but found %d", expectedId, actualId)
 	}
 
-	wrapper.DeleteSheet(spreadSheetId, actualId)
+	err = wrapper.DeleteSheet(spreadSheetId, actualId)
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}

@@ -177,6 +177,9 @@ func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.R
 	} else {
 		request, err = http.NewRequest("POST", url, nil)
 	}
+	if err != nil {
+		return nil, err
+	}
 
 	response, err := wrapper.httpClient.Do(request)
 
@@ -314,6 +317,9 @@ func (wrapper SheetsApiWrapper) CopySheet(spreadSheetId string, sheetId int32, d
 		DestinationSpreadsheetId: destinationSpreadsheetId,
 	}
 	response, err := wrapper.postSheetRequest(fmt.Sprintf(copySheetUrl, spreadSheetId, sheetId), body)
+	if err != nil {
+		return -1, err
+	}
 
 	result := spreadSheetProperties{}
 	err = deserialize[spreadSheet](response, &result)
