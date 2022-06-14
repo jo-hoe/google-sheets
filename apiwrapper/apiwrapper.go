@@ -53,6 +53,14 @@ type batchRequest struct {
 	AddSheet              *addSheet              `json:"addSheet,omitempty"`
 }
 
+type batchResponse struct {
+	UpdatedSpreadsheet updatedSpreadsheet `json:"updatedSpreadsheet,omitempty"`
+}
+
+type updatedSpreadsheet struct {
+	Sheets []sheet `json:"sheets,omitempty"`
+}
+
 type addSheet struct {
 	Properties spreadSheetProperties `json:"properties,omitempty"`
 }
@@ -99,14 +107,14 @@ func NewSheetsApiWrapper(httpClient *http.Client) *SheetsApiWrapper {
 	}
 }
 
-func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, oldSheetId int32, newSheetId int32, newSheetName string) (err error) {
+func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, sheetId int32, newSheetName string) (err error) {
 	body := updateRequest{}
 	body.Request = []batchRequest{{
 		UpdateSheetProperties: &updateSheetProperties{
 			FieldsToUpdate: "sheetId,title",
 			Properties: spreadSheetProperties{
 				Title:   newSheetName,
-				SheetID: newSheetId,
+				SheetID: sheetId,
 			}}}}
 
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
@@ -213,11 +221,18 @@ func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetName stri
 		}}}
 
 	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+
 	if err != nil {
 		return -1, err
 	}
 
-	return wrapper.findSheetIdInResponse(response, sheetName)
+	result := batchResponse{}
+	err = deserialize[spreadSheet](response, &result)
+	if err != nil {
+		return -1, err
+	}
+
+	return wrapper.findSheetIdInResponse(result.UpdatedSpreadsheet.Sheets, sheetName)
 }
 
 func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (int32, error) {
@@ -231,17 +246,17 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 		return -1, fmt.Errorf("could not get sheet from url '%s'\nerror %d: %s", url, resp.StatusCode, resp.Status)
 	}
 
-	return wrapper.findSheetIdInResponse(resp.Body, sheetName)
-}
-
-func (wrapper SheetsApiWrapper) findSheetIdInResponse(reader io.ReadCloser, sheetName string) (id int32, err error) {
 	result := spreadSheet{}
-	err = deserialize[spreadSheet](reader, &result)
+	err = deserialize[spreadSheet](resp.Body, &result)
 	if err != nil {
 		return -1, err
 	}
 
-	for _, sheet := range result.Sheets {
+	return wrapper.findSheetIdInResponse(result.Sheets, sheetName)
+}
+
+func (wrapper SheetsApiWrapper) findSheetIdInResponse(allSheets []sheet, sheetName string) (id int32, err error) {
+	for _, sheet := range allSheets {
 		if sheet.Properties.Title == sheetName {
 			return sheet.Properties.SheetID, nil
 		}
@@ -290,7 +305,7 @@ func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheatId string, initialSheetN
 	if err != nil {
 		return err
 	}
-	err = wrapper.UpdateSheetMetaData(spreadSheatId, id, initialSheetId, initialSheetName)
+	err = wrapper.UpdateSheetMetaData(spreadSheatId, id, initialSheetName)
 	if err != nil {
 		return err
 	}
@@ -299,13 +314,12 @@ func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheatId string, initialSheetN
 
 func deserialize[T any](reader io.ReadCloser, in any) (err error) {
 	defer reader.Close()
-	buffer := new(bytes.Buffer)
-	_, err = buffer.ReadFrom(reader)
+	bytes, err := io.ReadAll(reader)
 	if err != nil {
 		return err
 	}
 	// unmarshal to struct
-	err = json.Unmarshal(buffer.Bytes(), in)
+	err = json.Unmarshal(bytes, in)
 	if err != nil {
 		return err
 	}

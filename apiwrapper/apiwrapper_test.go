@@ -48,11 +48,12 @@ func Test_CreateSheet(t *testing.T) {
 		ResponseCode: 200,
 		ResponseBody: fmt.Sprintf(`{
 			"spreadsheetId": "spreadSheetId",
+			"updatedSpreadsheet": {
 			"sheets": [{
 			"properties": {
 				"sheetId": %d,
 				"title": "Sheet1"
-			}}]
+			}}]}
 		}`, expectedId),
 	}
 	mockClient := client.CreateMockClient(mockResponse)
@@ -109,7 +110,7 @@ func Test_UpdateSheetMetaData(t *testing.T) {
 	}
 	mockClient := client.CreateMockClient(mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.UpdateSheetMetaData("spreadSheatId", 1, 1, "Sheet2")
+	err := wrappper.UpdateSheetMetaData("spreadSheatId", 1, "Sheet2")
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}
