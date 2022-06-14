@@ -164,7 +164,7 @@ func Test_GetSheetData(t *testing.T) {
 func Test_ReplaceSheet(t *testing.T) {
 	sheetsMockResponse := client.ResponseSummery{
 		ResponseCode: 200,
-		ResponseBody: fmt.Sprint(`{
+		ResponseBody: `{
 			"sheets": [{
 					"properties": {
 						"sheetId": 1,
@@ -172,16 +172,16 @@ func Test_ReplaceSheet(t *testing.T) {
 					}
 				}
 			]
-		}`),
+		}`,
 	}
 	sheetMockResponse := client.ResponseSummery{
 		ResponseCode: 200,
-		ResponseBody: fmt.Sprintf(`{
+		ResponseBody: `{
 			"properties": {
 				"sheetId": 1,
 				"title": "title"
 			}
-		}`),
+		}`,
 	}
 	mockClient := client.CreateMockClient(sheetsMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
