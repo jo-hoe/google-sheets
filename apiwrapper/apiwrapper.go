@@ -111,7 +111,7 @@ func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, sheetI
 	body := updateRequest{}
 	body.Request = []batchRequest{{
 		UpdateSheetProperties: &updateSheetProperties{
-			FieldsToUpdate: "sheetId,title",
+			FieldsToUpdate: "title",
 			Properties: spreadSheetProperties{
 				Title:   newSheetName,
 				SheetID: sheetId,
@@ -209,14 +209,14 @@ func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName str
 	return truncateExtraneousData(resp.Body)
 }
 
-func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetName string) (id int32, err error) {
+func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetId int32, sheetName string) (id int32, err error) {
 	body := updateRequest{}
 	body.IncludeSpreadsheetInResponse = true
 	body.Request = []batchRequest{{
 		AddSheet: &addSheet{
 			Properties: spreadSheetProperties{
 				Title:   sheetName,
-				SheetID: int32(time.Now().UnixMilli() / 1000),
+				SheetID: sheetId,
 			},
 		}}}
 
@@ -284,12 +284,23 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName strin
 	return nil
 }
 
+// delete all data from a sheet
+func (wrapper SheetsApiWrapper) ClearSheet(spreadSheatId string, sheetName string) (err error) {
+	return err
+}
+
+// copies a sheet
+func (wrapper SheetsApiWrapper) CopySheet(spreadSheatId string, sheetName string, destinationSpreadsheetId string) (err error) {
+	return err
+}
+
 func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheatId string, initialSheetName string, data [][]string) (err error) {
 	initialSheetId, err := wrapper.GetSheetId(spreadSheatId, initialSheetName)
 	if err != nil {
 		return err
 	}
-	id, err := wrapper.CreateSheet(spreadSheatId, fmt.Sprintf("%s-%d", initialSheetName, time.Now().UnixMilli()))
+	timestamp := time.Now().UnixMilli()
+	id, err := wrapper.CreateSheet(spreadSheatId, int32(timestamp/1000), fmt.Sprintf("%s-%d", initialSheetName, timestamp))
 	if err != nil {
 		return err
 	}
