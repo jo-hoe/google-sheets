@@ -2,9 +2,11 @@ package apiwrapper
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/jo-hoe/google-sheets/client"
 )
@@ -12,10 +14,28 @@ import (
 func Test_Integration_Replace(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
 
-	err := wrapper.ReplaceSheet(spreadSheetId, "Sheet4", [][]string{
+	err := wrapper.ReplaceSheetData(spreadSheetId, "Sheet4", [][]string{
 		{"0", "1"},
 		{"2", "3"},
 	})
+	if err != nil {
+		t.Errorf("Found error during sheet creation %+v", err)
+	}
+}
+
+func Test_Integration_Create_Delete(t *testing.T) {
+	wrapper, spreadSheetId := createWrapper(t)
+
+	expectedId := time.Now().UnixMilli() / 1000
+	actualId, err := wrapper.CreateSheet(spreadSheetId, int32(expectedId), fmt.Sprint(expectedId))
+	if err != nil {
+		t.Errorf("Found error during sheet creation %+v", err)
+	}
+	if int32(expectedId) != actualId {
+		t.Errorf("Expected Id %d but found %d", expectedId, actualId)
+	}
+
+	wrapper.DeleteSheet(spreadSheetId, actualId)
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}

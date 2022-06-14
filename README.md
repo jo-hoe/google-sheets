@@ -39,15 +39,6 @@ To mitigate that, consider to use a dedicated service account.
 
 After creating the key do not forget to enable it for the sheet api
 <https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=>[project id]
-
-## Todo
-
-- read sheet ✔
-- create sheet ? (not integration tested)
-- rename sheet ? (not integration tested)
-- delete sheet ? (not integration tested)
-- write in a sheet ? (not integration tested)
-- fit column length ? (not integration tested)
   
 ## Linting
 

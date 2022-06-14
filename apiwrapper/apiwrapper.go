@@ -324,7 +324,7 @@ func (wrapper SheetsApiWrapper) CopySheet(spreadSheetId string, sheetId int32, d
 	return result.SheetID, nil
 }
 
-func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheetId string, initialSheetName string, data [][]string) (err error) {
+func (wrapper SheetsApiWrapper) ReplaceSheetData(spreadSheetId string, initialSheetName string, data [][]string) (err error) {
 	initialSheetId, err := wrapper.GetSheetId(spreadSheetId, initialSheetName)
 	if err != nil {
 		return err

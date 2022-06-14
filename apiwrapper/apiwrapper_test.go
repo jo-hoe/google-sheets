@@ -186,7 +186,7 @@ func Test_ReplaceSheet(t *testing.T) {
 	}
 	mockClient := client.CreateMockClient(sheetsMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.ReplaceSheet("spreadSheatId", "sheetName", [][]string{})
+	err := wrappper.ReplaceSheetData("spreadSheatId", "sheetName", [][]string{})
 
 	if err != nil {
 		t.Error("expected no error but found", err)
