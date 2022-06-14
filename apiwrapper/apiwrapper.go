@@ -287,7 +287,6 @@ func (wrapper SheetsApiWrapper) findSheetIdInResponse(allSheets []sheet, sheetNa
 }
 
 func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
-	// https://stackoverflow.com/questions/51196367/how-to-update-multiple-cells-via-the-google-sheets-api
 	body := vauleInput{}
 	body.ValueRange.Range = sheetName
 	body.ValueInputOption = "USER_ENTERED"
@@ -330,6 +329,9 @@ func (wrapper SheetsApiWrapper) CopySheet(spreadSheetId string, sheetId int32, d
 	return result.SheetID, nil
 }
 
+// Deletes data in the sheet and replaces it with new data.
+// Takes a backup of the current data during the processing of the request. This 
+// backup it deleted in the last set of this function.
 func (wrapper SheetsApiWrapper) ReplaceSheetData(spreadSheetId string, initialSheetName string, data [][]string) (err error) {
 	initialSheetId, err := wrapper.GetSheetId(spreadSheetId, initialSheetName)
 	if err != nil {
