@@ -12,7 +12,10 @@ import (
 func Test_Integration_Replace(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
 
-	err := wrapper.ReplaceSheet(spreadSheetId, "Sheet4", [][]string{})
+	err := wrapper.ReplaceSheet(spreadSheetId, "Sheet4", [][]string{
+		{"0", "1"},
+		{"2", "3"},
+	})
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}

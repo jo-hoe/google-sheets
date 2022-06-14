@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
@@ -21,6 +20,8 @@ const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
 const csvUrlTemplate = baseUrl + "/values/%s?alt=json&prettyPrint=false"
 const updateSheetUrl = baseUrl + ":batchUpdate"
 const updateValuesUrl = baseUrl + "/values:batchUpdate"
+const copySheetUrl = baseUrl + "/sheets/%d:copyTo"
+const clearSheetUrl = baseUrl + "/values/%s:clear"
 
 type values struct {
 	Values [][]string `json:"values"`
@@ -51,6 +52,10 @@ type batchRequest struct {
 	DeleteSheet           *deleteSheet           `json:"deleteSheet,omitempty"`
 	AutoResizeDimensions  *autoResizeDimensions  `json:"autoResizeDimensions,omitempty"`
 	AddSheet              *addSheet              `json:"addSheet,omitempty"`
+}
+
+type copyRequest struct {
+	DestinationSpreadsheetId string `json:"destinationSpreadsheetId,omitempty"`
 }
 
 type batchResponse struct {
@@ -92,9 +97,9 @@ type vauleInput struct {
 }
 
 type valueRange struct {
-	Range          string `json:"range"`
-	MajorDimension string `json:"majorDimension"`
-	Values         values `json:"values"`
+	Range          string     `json:"range"`
+	MajorDimension string     `json:"majorDimension"`
+	Values         [][]string `json:"values"`
 }
 
 type SheetsApiWrapper struct {
@@ -107,7 +112,7 @@ func NewSheetsApiWrapper(httpClient *http.Client) *SheetsApiWrapper {
 	}
 }
 
-func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, sheetId int32, newSheetName string) (err error) {
+func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheetId string, sheetId int32, newSheetName string) (err error) {
 	body := updateRequest{}
 	body.Request = []batchRequest{{
 		UpdateSheetProperties: &updateSheetProperties{
@@ -117,7 +122,7 @@ func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, sheetI
 				SheetID: sheetId,
 			}}}}
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
 
 	if err != nil {
 		return err
@@ -126,14 +131,14 @@ func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheatId string, sheetI
 	return nil
 }
 
-func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheatId string, sheetId int32) (err error) {
+func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheetId string, sheetId int32) (err error) {
 	body := updateRequest{}
 	body.Request = []batchRequest{{
 		DeleteSheet: &deleteSheet{
 			SheetId: sheetId,
 		}}}
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
 
 	if err != nil {
 		return err
@@ -142,7 +147,7 @@ func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheatId string, sheetId int32)
 	return nil
 }
 
-func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheatId string, sheetId int32) (err error) {
+func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheetId string, sheetId int32) (err error) {
 	body := updateRequest{}
 	body.Request = []batchRequest{{
 		AutoResizeDimensions: &autoResizeDimensions{
@@ -152,12 +157,12 @@ func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheatId string, sheetId in
 			},
 		}}}
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
 	if err != nil {
 		return err
 	}
 	body.Request[0].AutoResizeDimensions.Dimensions.Dimension = "COLUMNS"
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheatId), body)
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
 	if err != nil {
 		return err
 	}
@@ -166,14 +171,11 @@ func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheatId string, sheetId in
 }
 
 func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.ReadCloser, err error) {
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	request.Header.Add("Content-Type", "application/json")
-	if err != nil {
-		return nil, err
+	var request *http.Request
+	if body != nil {
+		request, err = wrapper.createJSONPostRequest(url, body)
+	} else {
+		request, err = http.NewRequest("POST", url, nil)
 	}
 
 	response, err := wrapper.httpClient.Do(request)
@@ -190,6 +192,23 @@ func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.R
 	}
 
 	return response.Body, nil
+}
+
+func (wrapper SheetsApiWrapper) createJSONPostRequest(url string, body any) (request *http.Request, err error) {
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Print(string(jsonBody))
+	request, err = http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	if body != nil {
+		request.Header.Add("Content-Type", "application/json")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return request, err
 }
 
 func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName string) (io.ReadCloser, error) {
@@ -264,7 +283,8 @@ func (wrapper SheetsApiWrapper) findSheetIdInResponse(allSheets []sheet, sheetNa
 	return -1, fmt.Errorf("sheet was not found")
 }
 
-func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName string, data [][]string) (err error) {
+func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
+	// https://stackoverflow.com/questions/51196367/how-to-update-multiple-cells-via-the-google-sheets-api
 	body := vauleInput{}
 	body.ValueRange.Range = sheetName
 	body.ValueInputOption = "USER_ENTERED"
@@ -272,11 +292,9 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName strin
 	body.DateTimeRenderOption = "FORMATTED_STRING"
 	body.IncludeValuesInResponse = false
 	body.ResponseValueRenderOption = "UNFORMATTED_VALUE"
-	body.ValueRange.Values = values{
-		Values: data,
-	}
+	body.ValueRange.Values = data
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheatId), body)
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheetId), body)
 	if err != nil {
 		return err
 	}
@@ -285,38 +303,52 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheatId string, sheetName strin
 }
 
 // delete all data from a sheet
-func (wrapper SheetsApiWrapper) ClearSheet(spreadSheatId string, sheetName string) (err error) {
+func (wrapper SheetsApiWrapper) ClearSheet(spreadSheetId string, sheetName string) (err error) {
+	_, err = wrapper.postSheetRequest(fmt.Sprintf(clearSheetUrl, spreadSheetId, sheetName), nil)
 	return err
 }
 
 // copies a sheet
-func (wrapper SheetsApiWrapper) CopySheet(spreadSheatId string, sheetName string, destinationSpreadsheetId string) (err error) {
-	return err
+func (wrapper SheetsApiWrapper) CopySheet(spreadSheetId string, sheetId int32, destinationSpreadsheetId string) (id int32, err error) {
+	body := copyRequest{
+		DestinationSpreadsheetId: destinationSpreadsheetId,
+	}
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(copySheetUrl, spreadSheetId, sheetId), body)
+
+	result := spreadSheetProperties{}
+	err = deserialize[spreadSheet](response, &result)
+	if err != nil {
+		return -1, err
+	}
+
+	return result.SheetID, nil
 }
 
-func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheatId string, initialSheetName string, data [][]string) (err error) {
-	initialSheetId, err := wrapper.GetSheetId(spreadSheatId, initialSheetName)
+func (wrapper SheetsApiWrapper) ReplaceSheet(spreadSheetId string, initialSheetName string, data [][]string) (err error) {
+	initialSheetId, err := wrapper.GetSheetId(spreadSheetId, initialSheetName)
 	if err != nil {
 		return err
 	}
-	timestamp := time.Now().UnixMilli()
-	id, err := wrapper.CreateSheet(spreadSheatId, int32(timestamp/1000), fmt.Sprintf("%s-%d", initialSheetName, timestamp))
+
+	// create a backup
+	backupId, err := wrapper.CopySheet(spreadSheetId, initialSheetId, spreadSheetId)
 	if err != nil {
 		return err
 	}
-	err = wrapper.WriteSheet(spreadSheatId, initialSheetName, data)
+
+	err = wrapper.ClearSheet(spreadSheetId, initialSheetName)
 	if err != nil {
 		return err
 	}
-	err = wrapper.AutoResizeSheet(spreadSheatId, id)
+	err = wrapper.WriteSheet(spreadSheetId, initialSheetName, data)
 	if err != nil {
 		return err
 	}
-	err = wrapper.DeleteSheet(spreadSheatId, initialSheetId)
+	err = wrapper.AutoResizeSheet(spreadSheetId, initialSheetId)
 	if err != nil {
 		return err
 	}
-	err = wrapper.UpdateSheetMetaData(spreadSheatId, id, initialSheetName)
+	err = wrapper.DeleteSheet(spreadSheetId, backupId)
 	if err != nil {
 		return err
 	}
