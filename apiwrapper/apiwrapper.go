@@ -122,8 +122,10 @@ func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheetId string, sheetI
 				SheetID: sheetId,
 			}}}}
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
-
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	if response != nil {
+		response.Close()
+	}
 	if err != nil {
 		return err
 	}
@@ -138,7 +140,10 @@ func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheetId string, sheetId int32)
 			SheetId: sheetId,
 		}}}
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	if response != nil {
+		response.Close()
+	}
 
 	if err != nil {
 		return err
@@ -157,12 +162,18 @@ func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheetId string, sheetId in
 			},
 		}}}
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	if response != nil {
+		response.Close()
+	}
 	if err != nil {
 		return err
 	}
 	body.Request[0].AutoResizeDimensions.Dimensions.Dimension = "COLUMNS"
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	response, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
+	if response != nil {
+		response.Close()
+	}
 	if err != nil {
 		return err
 	}
@@ -182,7 +193,6 @@ func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.R
 	}
 
 	response, err := wrapper.httpClient.Do(request)
-
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +212,6 @@ func (wrapper SheetsApiWrapper) createJSONPostRequest(url string, body any) (req
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print(string(jsonBody))
 	request, err = http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
 	if body != nil {
 		request.Header.Add("Content-Type", "application/json")
@@ -243,7 +252,6 @@ func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetId int32,
 		}}}
 
 	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
-
 	if err != nil {
 		return -1, err
 	}
@@ -297,7 +305,10 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName strin
 	body.ResponseValueRenderOption = "UNFORMATTED_VALUE"
 	body.ValueRange.Values = data
 
-	_, err = wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheetId), body)
+	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheetId), body)
+	if response != nil {
+		response.Close()
+	}
 	if err != nil {
 		return err
 	}
