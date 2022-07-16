@@ -24,7 +24,7 @@ const copySheetUrl = baseUrl + "/sheets/%d:copyTo"
 const clearSheetUrl = baseUrl + "/values/%s:clear"
 const appendSheetUrl = baseUrl + "/values/%s:append"
 
-const majorDimension = "COLUMNS"
+const majorDimension = "ROWS"
 
 // https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
 const valueInputOption = "RAW"
