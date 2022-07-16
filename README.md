@@ -69,7 +69,7 @@ The project contains both unit and integrations tests.
 
 ### Integration Test Exception
 
-A credentials file is need to start integration tests. You may use the following launch.json file
+A credentials file and a google spreadsheet needed as prerequisite for the integration tests. You may use the following launch.json file to run the tests.
 
 ```json
 {
