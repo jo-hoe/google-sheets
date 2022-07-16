@@ -17,9 +17,7 @@ func Test_NewSheetReader(t *testing.T) {
 	readerCloser, err := NewSheetReader(mock, "spreadSheatId", "sheetName")
 	if err != nil {
 		t.Errorf("error found during http reqest %v", err)
-	} else {
-		defer readerCloser.Close()
-	}
+	} 
 
 	csv := csv.NewReader(readerCloser)
 

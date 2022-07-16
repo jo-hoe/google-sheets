@@ -8,26 +8,23 @@ import (
 )
 
 // wrapper for io.ReaderCloser
-type SheetReadCloser struct {
-	io.ReadCloser
-	readerCloser io.ReadCloser
+type SheetReader struct {
+	io.Reader
+	spreadSheetId string
+	sheetName     string
+	wrapper       *apiwrapper.SheetsApiWrapper
 }
 
-func NewSheetReader(client *http.Client, spreadSheetId string, sheetName string) (*SheetReadCloser, error) {
-	wrapper := apiwrapper.NewSheetsApiWrapper(client)
-	readerCloser, err := wrapper.GetSheetData(spreadSheetId, sheetName)
-	if err != nil {
-		return nil, err
-	}
-	return &SheetReadCloser{
-		readerCloser: readerCloser,
+func NewSheetReader(client *http.Client, spreadSheetId string, sheetName string) (*SheetReader, error) {
+	return &SheetReader{
+		wrapper: apiwrapper.NewSheetsApiWrapper(client),
 	}, nil
 }
 
-func (sheetReadCloser *SheetReadCloser) Read(p []byte) (n int, err error) {
-	return sheetReadCloser.readerCloser.Read(p)
-}
-
-func (sheetReadCloser *SheetReadCloser) Close() error {
-	return sheetReadCloser.readerCloser.Close()
+func (service *SheetReader) Read(p []byte) (n int, err error) {
+	reader, err := service.wrapper.GetSheetData(service.spreadSheetId, service.sheetName)
+	if err != nil {
+		return -1, err
+	}
+	return reader.Read(p)
 }

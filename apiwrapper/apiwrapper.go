@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -187,10 +186,10 @@ func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheetId string, sheetId in
 	return nil
 }
 
-func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName string) (io.ReadCloser, error) {
+func (wrapper SheetsApiWrapper) GetSheetData(spreadSheetId string, sheetName string) (io.Reader, error) {
 	// escape sheet name, since it may contain spaces and other URL incompatible characters
 	encodedSheetName := url.QueryEscape(sheetName)
-	url := fmt.Sprintf(csvUrlTemplate, SpreadSheetId, encodedSheetName)
+	url := fmt.Sprintf(csvUrlTemplate, spreadSheetId, encodedSheetName)
 	resp, err := wrapper.httpClient.Get(url)
 	if err != nil {
 		return nil, err
@@ -431,7 +430,7 @@ func deserialize[T any](reader io.ReadCloser, in any) (err error) {
 // {"range":"Sheet2!A1:Z1000","majorDimension":"ROWS","values":[["a","b"],["1","2"]]}
 // only the 'values' field is relevant.
 // The returned reader will contain it in an 'encoding/csv' readable format
-func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
+func truncateExtraneousData(reader io.ReadCloser) (io.Reader, error) {
 	// not the fastest way to do things but easy to read and maintain
 	result := values{}
 	err := deserialize[values](reader, &result)
@@ -458,5 +457,5 @@ func truncateExtraneousData(reader io.ReadCloser) (io.ReadCloser, error) {
 	}
 
 	// return data as reader
-	return ioutil.NopCloser(bytes.NewReader(output.Bytes())), nil
+	return bytes.NewReader(output.Bytes()), nil
 }
