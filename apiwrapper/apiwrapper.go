@@ -24,6 +24,8 @@ const copySheetUrl = baseUrl + "/sheets/%d:copyTo"
 const clearSheetUrl = baseUrl + "/values/%s:clear"
 const appendSheetUrl = baseUrl + "/values/%s:append"
 
+const majorDimension = "COLUMNS"
+
 // https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
 const valueInputOption = "RAW"
 
@@ -251,7 +253,7 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName strin
 	body := valueInput{}
 	body.ValueRange.Range = sheetName
 	body.ValueInputOption = valueInputOption
-	body.ValueRange.MajorDimension = "COLUMNS"
+	body.ValueRange.MajorDimension = majorDimension
 	body.DateTimeRenderOption = "FORMATTED_STRING"
 	body.IncludeValuesInResponse = false
 	body.ResponseValueRenderOption = "UNFORMATTED_VALUE"
@@ -271,7 +273,7 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName strin
 func (wrapper SheetsApiWrapper) AppendToSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
 	body := valueRange{}
 	body.Range = sheetName
-	body.MajorDimension = "COLUMNS"
+	body.MajorDimension = majorDimension
 	body.Values = data
 
 	queryParameters := make(map[string]string)
