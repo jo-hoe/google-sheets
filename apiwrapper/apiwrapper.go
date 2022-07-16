@@ -24,6 +24,9 @@ const copySheetUrl = baseUrl + "/sheets/%d:copyTo"
 const clearSheetUrl = baseUrl + "/values/%s:clear"
 const appendSheetUrl = baseUrl + "/values/%s:append"
 
+// https://developers.google.com/sheets/api/reference/rest/v4/ValueInputOption
+const valueInputOption = "RAW"
+
 type values struct {
 	Values [][]string `json:"values"`
 }
@@ -247,7 +250,7 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
 	body := valueInput{}
 	body.ValueRange.Range = sheetName
-	body.ValueInputOption = "USER_ENTERED"
+	body.ValueInputOption = valueInputOption
 	body.ValueRange.MajorDimension = "COLUMNS"
 	body.DateTimeRenderOption = "FORMATTED_STRING"
 	body.IncludeValuesInResponse = false
@@ -272,7 +275,7 @@ func (wrapper SheetsApiWrapper) AppendToSheet(spreadSheetId string, sheetName st
 	body.Values = data
 
 	queryParameters := make(map[string]string)
-	queryParameters["valueInputOption"] = "RAW"
+	queryParameters["valueInputOption"] = valueInputOption
 
 	response, err := wrapper.postSheetRequestQueryParameter(fmt.Sprintf(appendSheetUrl, spreadSheetId, sheetName), body, queryParameters)
 	if response != nil {
