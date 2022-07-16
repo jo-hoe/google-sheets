@@ -13,29 +13,67 @@ import (
 
 func Test_Integration_Replace(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
+	id := createTestSheet(t, wrapper, spreadSheetId)
 
-	err := wrapper.ReplaceSheetData(spreadSheetId, "Sheet4", [][]string{
+	err := wrapper.ReplaceSheetData(spreadSheetId, fmt.Sprint(id), [][]string{
 		{"0", "1"},
 		{"2", "3"},
 	})
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}
+	deleteTestSheet(t, wrapper, spreadSheetId, id)
+}
+
+func Test_Integration_AppendToSheet(t *testing.T) {
+	wrapper, spreadSheetId := createWrapper(t)
+	id := createTestSheet(t, wrapper, spreadSheetId)
+
+	err := wrapper.AppendToSheet(spreadSheetId, fmt.Sprint(id), [][]string{
+		{"0", "1"},
+		{"2", "3"},
+	})
+	if err != nil {
+		t.Errorf("Found error during sheet creation %+v", err)
+	}
+	err = wrapper.AppendToSheet(spreadSheetId, fmt.Sprint(id), [][]string{
+		{"4", "5"},
+		{"6", "7"},
+	})
+	if err != nil {
+		t.Errorf("Found error during sheet creation %+v", err)
+	}
+
+	deleteTestSheet(t, wrapper, spreadSheetId, id)
 }
 
 func Test_Integration_Create_Delete(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
+	expectedId := int32(time.Now().UnixMilli() / 1000)
 
-	expectedId := time.Now().UnixMilli() / 1000
-	actualId, err := wrapper.CreateSheet(spreadSheetId, int32(expectedId), fmt.Sprint(expectedId))
-	if err != nil {
-		t.Errorf("Found error during sheet creation %+v", err)
-	}
-	if int32(expectedId) != actualId {
+	actualId := createTestSheetWithId(t, wrapper, spreadSheetId, expectedId)
+	if expectedId != actualId {
 		t.Errorf("Expected Id %d but found %d", expectedId, actualId)
 	}
 
-	err = wrapper.DeleteSheet(spreadSheetId, actualId)
+	deleteTestSheet(t, wrapper, spreadSheetId, actualId)
+}
+
+func createTestSheet(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId string) int32 {
+	expectedId := int32(time.Now().UnixMilli() / 1000)
+	return createTestSheetWithId(t, wrapper, spreadSheetId, expectedId)
+}
+
+func createTestSheetWithId(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId string, id int32) int32 {
+	result, err := wrapper.CreateSheet(spreadSheetId, id, fmt.Sprint(id))
+	if err != nil {
+		t.Errorf("Found error during sheet creation %+v", err)
+	}
+	return result
+}
+
+func deleteTestSheet(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId string, id int32) {
+	err := wrapper.DeleteSheet(spreadSheetId, id)
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}

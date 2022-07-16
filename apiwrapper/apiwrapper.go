@@ -22,6 +22,7 @@ const updateSheetUrl = baseUrl + ":batchUpdate"
 const updateValuesUrl = baseUrl + "/values:batchUpdate"
 const copySheetUrl = baseUrl + "/sheets/%d:copyTo"
 const clearSheetUrl = baseUrl + "/values/%s:clear"
+const appendSheetUrl = baseUrl + "/values/%s:append"
 
 type values struct {
 	Values [][]string `json:"values"`
@@ -88,7 +89,7 @@ type dimensions struct {
 	Dimension string `json:"dimension"`
 }
 
-type vauleInput struct {
+type valueInput struct {
 	ValueInputOption          string     `json:"valueInputOption"`
 	ValueRange                valueRange `json:"data"`
 	IncludeValuesInResponse   bool       `json:"includeValuesInResponse"`
@@ -181,48 +182,6 @@ func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheetId string, sheetId in
 	return nil
 }
 
-func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.ReadCloser, err error) {
-	var request *http.Request
-	if body != nil {
-		request, err = wrapper.createJSONPostRequest(url, body)
-	} else {
-		request, err = http.NewRequest("POST", url, nil)
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	response, err := wrapper.httpClient.Do(request)
-	if err != nil {
-		return nil, err
-	}
-	if response.StatusCode != 200 {
-		responseBody, err := io.ReadAll(response.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("Response was '%s': %s", response.Status, string(responseBody))
-	}
-
-	return response.Body, nil
-}
-
-func (wrapper SheetsApiWrapper) createJSONPostRequest(url string, body any) (request *http.Request, err error) {
-	jsonBody, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	request, err = http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
-	if body != nil {
-		request.Header.Add("Content-Type", "application/json")
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return request, err
-}
-
 func (wrapper SheetsApiWrapper) GetSheetData(SpreadSheetId string, sheetName string) (io.ReadCloser, error) {
 	// escape sheet name, since it may contain spaces and other URL incompatible characters
 	encodedSheetName := url.QueryEscape(sheetName)
@@ -285,17 +244,8 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 	return wrapper.findSheetIdInResponse(result.Sheets, sheetName)
 }
 
-func (wrapper SheetsApiWrapper) findSheetIdInResponse(allSheets []sheet, sheetName string) (id int32, err error) {
-	for _, sheet := range allSheets {
-		if sheet.Properties.Title == sheetName {
-			return sheet.Properties.SheetID, nil
-		}
-	}
-	return -1, fmt.Errorf("sheet was not found")
-}
-
 func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
-	body := vauleInput{}
+	body := valueInput{}
 	body.ValueRange.Range = sheetName
 	body.ValueInputOption = "USER_ENTERED"
 	body.ValueRange.MajorDimension = "COLUMNS"
@@ -305,6 +255,26 @@ func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName strin
 	body.ValueRange.Values = data
 
 	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheetId), body)
+	if response != nil {
+		response.Close()
+	}
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (wrapper SheetsApiWrapper) AppendToSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
+	body := valueRange{}
+	body.Range = sheetName
+	body.MajorDimension = "COLUMNS"
+	body.Values = data
+
+	queryParameters := make(map[string]string)
+	queryParameters["valueInputOption"] = "RAW"
+
+	response, err := wrapper.postSheetRequestQueryParameter(fmt.Sprintf(appendSheetUrl, spreadSheetId, sheetName), body, queryParameters)
 	if response != nil {
 		response.Close()
 	}
@@ -341,7 +311,7 @@ func (wrapper SheetsApiWrapper) CopySheet(spreadSheetId string, sheetId int32, d
 }
 
 // Deletes data in the sheet and replaces it with new data.
-// Takes a backup of the current data during the processing of the request. This 
+// Takes a backup of the current data during the processing of the request. This
 // backup it deleted in the last set of this function.
 func (wrapper SheetsApiWrapper) ReplaceSheetData(spreadSheetId string, initialSheetName string, data [][]string) (err error) {
 	initialSheetId, err := wrapper.GetSheetId(spreadSheetId, initialSheetName)
@@ -372,6 +342,70 @@ func (wrapper SheetsApiWrapper) ReplaceSheetData(spreadSheetId string, initialSh
 		return err
 	}
 	return err
+}
+
+func (wrapper SheetsApiWrapper) postSheetRequest(url string, body any) (out io.ReadCloser, err error) {
+	return wrapper.postSheetRequestQueryParameter(url, body, map[string]string{})
+}
+
+func (wrapper SheetsApiWrapper) postSheetRequestQueryParameter(url string, body any, queryParams map[string]string) (out io.ReadCloser, err error) {
+	var request *http.Request
+	if body != nil {
+		request, err = wrapper.createJSONPostRequest(url, body)
+	} else {
+		request, err = http.NewRequest("POST", url, nil)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	// add query parameters
+	if len(queryParams) > 0 {
+		query := request.URL.Query()
+		for key, value := range queryParams {
+			query.Add(key, value)
+		}
+		request.URL.RawQuery = query.Encode()
+	}
+
+	response, err := wrapper.httpClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != 200 {
+		responseBody, err := io.ReadAll(response.Body)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("Response was '%s': %s", response.Status, string(responseBody))
+	}
+
+	return response.Body, nil
+}
+
+func (wrapper SheetsApiWrapper) findSheetIdInResponse(allSheets []sheet, sheetName string) (id int32, err error) {
+	for _, sheet := range allSheets {
+		if sheet.Properties.Title == sheetName {
+			return sheet.Properties.SheetID, nil
+		}
+	}
+	return -1, fmt.Errorf("sheet was not found")
+}
+
+func (wrapper SheetsApiWrapper) createJSONPostRequest(url string, body any) (request *http.Request, err error) {
+	jsonBody, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	request, err = http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	if body != nil {
+		request.Header.Add("Content-Type", "application/json")
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return request, err
 }
 
 func deserialize[T any](reader io.ReadCloser, in any) (err error) {

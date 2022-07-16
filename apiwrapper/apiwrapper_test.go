@@ -105,6 +105,23 @@ func Test_WriteSheet(t *testing.T) {
 	}
 }
 
+
+func Test_AppendToSheet(t *testing.T) {
+	mockResponse := client.ResponseSummery{
+		ResponseCode: 200,
+	}
+	mockClient := client.CreateMockClient(mockResponse, mockResponse)
+	wrappper := NewSheetsApiWrapper(mockClient)
+	err := wrappper.AppendToSheet("spreadSheatId", "spreadSheetName", [][]string{})
+	if err != nil {
+		t.Errorf("found error while reading to buffer %v", err)
+	}
+
+	if err != nil {
+		t.Error("expected no error but found", err)
+	}
+}
+
 func Test_UpdateSheetMetaData(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
