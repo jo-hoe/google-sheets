@@ -9,13 +9,17 @@ Provides an idiomatic way to read and write data from google sheets.
 
 ```golang
 // Creating a http client with credentials of service account.
-clientCredentialsJson := os.GetEnv("myClientCredentialJsonString")
-myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
+clientCredentialsJson := os.Getenv("myClientCredentialJsonString")
+myClient, err := client.NewServiceAccountClient(context.Background(), clientCredentialsJson)
+if err != nil {
+  log.Print(err.Error())
+  return
+}
 
 // spread sheet id can be taken from the URL
 // example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
 // the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
-writer, err := NewSheetWriter(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1", O_CREATE)
+writer, err := writer.NewSheetWriter(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1", writer.O_CREATE)
 csvWriter := csv.NewWriter(writer)
 err = csvWriter.WriteAll([][]string{
   {"0", "1"},
@@ -24,12 +28,14 @@ err = csvWriter.WriteAll([][]string{
 
 reader, err := reader.NewSheetReader(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1")
 if err != nil {
-  return nil, err
+  log.Print(err.Error())
+  return
 }
 csvReader := csv.NewReader(reader)
 csvResult, err := csvReader.ReadAll()
 if err != nil {
-  return nil, err
+  log.Print(err.Error())
+  return
 }
 fmt.Printf("results: %v", csvResult)
 ```
