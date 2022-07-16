@@ -14,12 +14,12 @@ func Test_NewSheetReader(t *testing.T) {
 		ResponseBody: "{\"range\":\"Sheet2!A1:Z1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"0\",\"1\"],[\"2\",\"3\"]]}",
 	}
 	mock := client.CreateMockClient(mockResponse)
-	readerCloser, err := NewSheetReader(mock, "spreadSheatId", "sheetName")
+	reader, err := NewSheetReader(mock, "spreadSheatId", "sheetName")
 	if err != nil {
 		t.Errorf("error found during http reqest %v", err)
 	} 
 
-	csv := csv.NewReader(readerCloser)
+	csv := csv.NewReader(reader)
 
 	actual, err := csv.ReadAll()
 	if err != nil {

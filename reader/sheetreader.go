@@ -10,6 +10,7 @@ import (
 // wrapper for io.ReaderCloser
 type SheetReader struct {
 	io.Reader
+	reader        io.Reader
 	spreadSheetId string
 	sheetName     string
 	wrapper       *apiwrapper.SheetsApiWrapper
@@ -22,9 +23,12 @@ func NewSheetReader(client *http.Client, spreadSheetId string, sheetName string)
 }
 
 func (service *SheetReader) Read(p []byte) (n int, err error) {
-	reader, err := service.wrapper.GetSheetData(service.spreadSheetId, service.sheetName)
-	if err != nil {
-		return -1, err
+	if service.reader == nil {
+		service.reader, err = service.wrapper.GetSheetData(service.spreadSheetId, service.sheetName)
+		if err != nil {
+			return -1, err
+		}
 	}
-	return reader.Read(p)
+
+	return service.reader.Read(p)
 }
