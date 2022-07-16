@@ -37,7 +37,10 @@ func NewSheetWriter(client *http.Client, spreadSheetId string, sheetName string,
 		return nil, fmt.Errorf("sheet %s already exists in spreadsheet %s", sheetName, spreadSheetId)
 	}
 	if err == nil && hasFlag(flag, O_TRUNC) {
-		wrapper.ClearSheet(spreadSheetId, sheetName)
+		err = wrapper.ClearSheet(spreadSheetId, sheetName)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if err != nil && hasFlag(flag, O_CREATE) {
 		// create new with an id = current timestamp

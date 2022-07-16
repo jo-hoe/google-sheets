@@ -26,11 +26,17 @@ func TestSheetWriter_Integration_Write(t *testing.T) {
 		t.Errorf("Found error %+v", err)
 	}
 	csvWriter := csv.NewWriter(writer)
-	csvWriter.WriteAll([][]string{
+	err = csvWriter.WriteAll([][]string{
 		{"0", "1"},
 		{"2", "3"},
 	})
-	csvWriter.Write([]string{"4", "5"})
+	if err != nil {
+		t.Errorf("Found error %+v", err)
+	}
+	err = csvWriter.Write([]string{"4", "5"})
+	if err != nil {
+		t.Errorf("Found error %+v", err)
+	}
 	csvWriter.Flush()
 
 	// clean-up
@@ -38,7 +44,10 @@ func TestSheetWriter_Integration_Write(t *testing.T) {
 	if err != nil {
 		t.Errorf("Found error %+v", err)
 	}
-	wrapper.DeleteSheet(spreadSheetId, sheetId)
+	err = wrapper.DeleteSheet(spreadSheetId, sheetId)
+	if err != nil {
+		t.Errorf("Found error %+v", err)
+	}
 }
 
 func createClient(t *testing.T) (httpClient *http.Client, spreadSheetId string) {

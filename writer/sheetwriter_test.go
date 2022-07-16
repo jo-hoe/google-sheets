@@ -2,7 +2,6 @@ package writer
 
 import (
 	"encoding/csv"
-	"fmt"
 	"testing"
 
 	"github.com/jo-hoe/google-sheets/client"
@@ -11,7 +10,7 @@ import (
 func TestSheetWriter_Write(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
-		ResponseBody: fmt.Sprint(`{
+		ResponseBody: `{
 			"sheets": [{
 					"properties": {
 						"sheetId": 0,
@@ -19,7 +18,7 @@ func TestSheetWriter_Write(t *testing.T) {
 					}
 				}
 			]
-		}`),
+		}`,
 	}
 	mockClient := client.CreateMockClient(mockResponse, mockResponse)
 
