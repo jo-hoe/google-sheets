@@ -10,8 +10,6 @@ Provides an idiomatic way to read and write data from google sheets.
 ```golang
 // Creating a http client with credentials of service account.
 clientCredentialsJson := os.GetEnv("myClientCredentialJsonString")
-// If sheet is public, a regular client can also be used e.g.:
-// myClient := http.Client{}
 myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
 
 // spread sheet id can be taken from the URL
@@ -69,7 +67,7 @@ The project contains both unit and integrations tests.
 
 ### Integration Test Exception
 
-A credentials file is need to start integration tests. You may use the following launch.json file
+A credentials file and a google spreadsheet needed as prerequisite for the integration tests. You may use the following launch.json file to run the tests.
 
 ```json
 {
