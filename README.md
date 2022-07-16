@@ -17,14 +17,19 @@ myClient := client.NewServiceAccountClient(ctx, clientCredentialsJson)
 // spread sheet id can be taken from the URL
 // example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
 // the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
-readerCloser, err := reader.NewSheetReader(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1")
-defer closeReader(readerCloser)
+writer, err := NewSheetWriter(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1", O_CREATE)
+csvWriter := csv.NewWriter(writer)
+err = csvWriter.WriteAll([][]string{
+  {"0", "1"},
+  {"2", "3"},
+})
+
+reader, err := reader.NewSheetReader(myClient, "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1")
 if err != nil {
   return nil, err
 }
-
-csv := csv.NewReader(readerCloser)
-csvResult, err := csv.ReadAll()
+csvReader := csv.NewReader(reader)
+csvResult, err := csvReader.ReadAll()
 if err != nil {
   return nil, err
 }
@@ -74,7 +79,7 @@ A credentials file is need to start integration tests. You may use the following
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Integration Tests",
+            "name": "Debug API Wrapper Tests",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -83,7 +88,17 @@ A credentials file is need to start integration tests. You may use the following
                 "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
                 "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"
             },
-        }
+        },{
+            "name": "Debug Writer Tests",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/writer/sheetwriter_integration_test.go",
+            "env": {
+                "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
+                "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"
+            },
+        },
     ]
 }
 ```
