@@ -7,11 +7,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/jo-hoe/google-sheets/apiwrapper"
 	"github.com/jo-hoe/google-sheets/client"
+	"github.com/jo-hoe/google-sheets/reader"
 )
 
 func TestSheetWriter_Integration_Write(t *testing.T) {
@@ -38,6 +40,21 @@ func TestSheetWriter_Integration_Write(t *testing.T) {
 		t.Errorf("Found error %+v", err)
 	}
 	csvWriter.Flush()
+
+	reader, err := reader.NewSheetReader(client, spreadSheetId, fmt.Sprint(sheetName))
+	if err != nil {
+		t.Errorf("Found error %+v", err)
+	}
+	csvReader := csv.NewReader(reader)
+	actual, err := csvReader.ReadAll()
+	if err != nil {
+		t.Errorf("Found error %+v", err)
+	}
+
+	expected := [][]string{{"0", "1"}, {"2", "3"}, {"4", "5"}}
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("Expected %+v but got %+v", expected, actual)
+	}
 
 	// clean-up
 	sheetId, err := wrapper.GetSheetId(spreadSheetId, fmt.Sprint(sheetName))

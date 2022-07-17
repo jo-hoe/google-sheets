@@ -19,6 +19,8 @@ type SheetReader struct {
 func NewSheetReader(client *http.Client, spreadSheetId string, sheetName string) (*SheetReader, error) {
 	return &SheetReader{
 		wrapper: apiwrapper.NewSheetsApiWrapper(client),
+		spreadSheetId: spreadSheetId,
+		sheetName: sheetName,
 	}, nil
 }
 
