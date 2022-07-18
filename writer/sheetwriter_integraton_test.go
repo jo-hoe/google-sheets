@@ -80,7 +80,7 @@ func createClient(t *testing.T) (httpClient *http.Client, spreadSheetId string) 
 	if err != nil {
 		t.Skipf("Could not read file %+v", err)
 	}
-	httpClient, err = client.NewReadWriteScopesServiceAccountClient(context.Background(), string(content))
+	httpClient, err = client.NewReadWriteClient(context.Background(), string(content))
 	if err != nil {
 		t.Skipf("Could not create client %+v", err)
 	}

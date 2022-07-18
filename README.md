@@ -10,7 +10,7 @@ Provides an idiomatic way to read and write data from google sheets.
 ```golang
 // Creating a http client with credentials of a gcp service account.
 clientCredentialsJson := os.Getenv("myClientCredentialJsonString")
-myClient, err := client.NewReadWriteScopesServiceAccountClient(context.Background(), clientCredentialsJson)
+myClient, err := client.NewReadWriteClient(context.Background(), clientCredentialsJson)
 if err != nil {
   log.Print(err.Error())
   return
