@@ -1,11 +1,11 @@
 package writer
 
 import (
+	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"syscall"
 	"time"
 
@@ -58,10 +58,8 @@ func NewSheetWriter(client *http.Client, spreadSheetId string, sheetName string,
 	}, nil
 }
 
-func (service *SheetWriter) Write(p []byte) (n int, err error) {
-	stringRepresentation := string(p)
-
-	csvReader := csv.NewReader(strings.NewReader(stringRepresentation))
+func (service *SheetWriter) Write(byteData []byte) (n int, err error) {
+	csvReader := csv.NewReader(bytes.NewReader(byteData))
 	data, err := csvReader.ReadAll()
 	if err != nil {
 		return 0, err
@@ -72,7 +70,7 @@ func (service *SheetWriter) Write(p []byte) (n int, err error) {
 		return 0, err
 	}
 
-	return len(p), nil
+	return len(byteData), nil
 }
 
 func hasFlag(flags int, flag int) bool {
