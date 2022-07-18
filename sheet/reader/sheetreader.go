@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/jo-hoe/google-sheets/apiwrapper"
+	"github.com/jo-hoe/google-sheets/api/apiwrapper"
 )
 
 // wrapper for io.ReaderCloser

@@ -18,15 +18,14 @@ const ReadWriteScopes = "https://www.googleapis.com/auth/spreadsheets"
 // NewReadClient creates a http client to access non-public spreedsheets.
 // Account will only have read access
 func NewReadClient(ctx context.Context, clientCredentialsJson string) (*http.Client, error) {
-	return newServiceAccountClient(ctx, clientCredentialsJson, ReadOnlyScopes)
+	return NewServiceAccountClient(ctx, []byte(clientCredentialsJson), ReadOnlyScopes)
 }
 
 func NewReadWriteClient(ctx context.Context, clientCredentialsJson string) (*http.Client, error) {
-	return newServiceAccountClient(ctx, clientCredentialsJson, ReadWriteScopes)
+	return NewServiceAccountClient(ctx, []byte(clientCredentialsJson), ReadWriteScopes)
 }
 
-func newServiceAccountClient(ctx context.Context, clientCredentialsJson string, scopes string) (*http.Client, error) {
-	clientCredentials := []byte(clientCredentialsJson)
+func NewServiceAccountClient(ctx context.Context, clientCredentials []byte, scopes string) (*http.Client, error) {
 	config, err := google.JWTConfigFromJSON(clientCredentials, scopes)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse client secret file to config: %v", err)

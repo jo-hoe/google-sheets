@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jo-hoe/google-sheets/client"
+	"github.com/jo-hoe/google-sheets/api/client"
 )
 
 func Test_NewSheetReader(t *testing.T) {

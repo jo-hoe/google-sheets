@@ -28,7 +28,7 @@ func NewMockClient(fn RoundTripFunc) *http.Client {
 
 func CreateMockClient(summeries ...ResponseSummery) *http.Client {
 	i := -1
-	return NewMockClient(func(req *http.Request) *http.Response {
+	return NewMockClient(func(_ *http.Request) *http.Response {
 		i = i + 1
 		return &http.Response{
 			StatusCode: summeries[i].ResponseCode,
