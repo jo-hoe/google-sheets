@@ -17,7 +17,6 @@ type SheetWriter struct {
 	wrapper       *apiwrapper.SheetsApiWrapper
 	spreadSheetId string
 	sheetName     string
-	flag          int
 }
 
 const (
@@ -54,7 +53,6 @@ func NewSheetWriter(client *http.Client, spreadSheetId string, sheetName string,
 		wrapper:       wrapper,
 		spreadSheetId: spreadSheetId,
 		sheetName:     sheetName,
-		flag:          flag,
 	}, nil
 }
 
