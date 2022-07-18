@@ -105,7 +105,6 @@ func Test_WriteSheet(t *testing.T) {
 	}
 }
 
-
 func Test_AppendToSheet(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
