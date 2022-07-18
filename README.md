@@ -8,7 +8,7 @@ Provides an idiomatic way to read and write data from google sheets.
 ## Example Useage
 
 ```golang
-// Creating a http client with credentials of service account.
+// Creating a http client with credentials of a gcp service account.
 clientCredentialsJson := os.Getenv("myClientCredentialJsonString")
 myClient, err := client.NewServiceAccountClient(context.Background(), clientCredentialsJson)
 if err != nil {
@@ -43,10 +43,10 @@ fmt.Printf("results: %v", csvResult)
 ## Google Sheets Authorization
 
 The offical documentation can be found here: <https://developers.google.com/sheets/api/guides/authorizing>.
-Note, that there is no possiblity to reduce the API access to only a specific file.
-To mitigate that, consider to use a dedicated service account.
+Note, that there is no possiblity to reduce the API access to only a specific sheet.
+To mitigate that, consider to use a dedicated service account for your google sheets.
 
-After creating the key do not forget to enable it for the sheet api
+After creating the json key for your service account do not forget to enable the google project in which the key residesit for the sheet api. You may do so using this url scheme;
 <https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=>[project id]
   
 ## Linting
