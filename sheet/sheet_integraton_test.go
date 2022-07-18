@@ -47,7 +47,10 @@ func TestSheet_Integration_Write(t *testing.T) {
 	}
 
 	// clean-up
-	Remove(context.Background(), spreadSheetId, sheetName, fileContent)
+	err = RemoveById(context.Background(), sheet.SpreadSheetId(), sheet.Id(), fileContent)
+	if err != nil {
+		t.Errorf("Found error %+v", err)
+	}
 }
 
 func getPrerequisites(t *testing.T) (fileContent []byte, spreadSheetId string) {

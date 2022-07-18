@@ -40,7 +40,3 @@ func (service *SheetWriter) Write(byteData []byte) (n int, err error) {
 
 	return len(byteData), nil
 }
-
-func hasFlag(flags int, flag int) bool {
-	return flags&flag != 0
-}

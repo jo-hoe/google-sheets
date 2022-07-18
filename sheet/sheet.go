@@ -26,3 +26,15 @@ func (service *Sheet) Write(byteData []byte) (n int, err error) {
 func (service *Sheet) Read(p []byte) (n int, err error) {
 	return service.reader.Read(p)
 }
+
+func (service *Sheet) Id() int32 {
+	return service.id
+}
+
+func (service *Sheet) SpreadSheetId() string {
+	return service.spreadSheetId
+}
+
+func (service *Sheet) Name() string {
+	return service.sheetName
+}

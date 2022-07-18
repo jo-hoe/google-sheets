@@ -3,6 +3,7 @@ package sheet
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"syscall"
 
 	"github.com/jo-hoe/google-sheets/api/apiwrapper"
@@ -22,11 +23,10 @@ const (
 )
 
 func Remove(ctx context.Context, spreadSheetId string, sheetName string, clientCredentialsJson []byte) error {
-	client, err := client.NewServiceAccountClient(ctx, clientCredentialsJson, client.ReadWriteScopes)
+	wrapper, err := createAPIWrapper(ctx, O_RDWR, clientCredentialsJson)
 	if err != nil {
 		return err
 	}
-	wrapper := apiwrapper.NewSheetsApiWrapper(client)
 	sheetId, err := wrapper.GetSheetId(spreadSheetId, sheetName)
 	if err != nil {
 		return err
@@ -34,15 +34,17 @@ func Remove(ctx context.Context, spreadSheetId string, sheetName string, clientC
 	return wrapper.DeleteSheet(spreadSheetId, sheetId)
 }
 
-func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag int, clientCredentialsJson []byte) (*Sheet, error) {
-	var scope string
-	if hasFlag(flag, O_RDONLY) {
-		scope = client.ReadOnlyScopes
-	} else {
-		scope = client.ReadWriteScopes
+func RemoveById(ctx context.Context, spreadSheetId string, sheetId int32, clientCredentialsJson []byte) error {
+	wrapper, err := createAPIWrapper(ctx, O_RDWR, clientCredentialsJson)
+	if err != nil {
+		return err
 	}
 
-	client, err := client.NewServiceAccountClient(ctx, clientCredentialsJson, scope)
+	return wrapper.DeleteSheet(spreadSheetId, sheetId)
+}
+
+func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag int, clientCredentialsJson []byte) (*Sheet, error) {
+	client, err := createClient(ctx, flag, clientCredentialsJson)
 	if err != nil {
 		return nil, err
 	}
@@ -96,4 +98,27 @@ func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag
 
 func hasFlag(flags int, flag int) bool {
 	return flags&flag != 0
+}
+
+func createClient(ctx context.Context, flag int, clientCredentialsJson []byte) (*http.Client, error) {
+	var scope string
+	if hasFlag(flag, O_RDONLY) {
+		scope = client.ReadOnlyScopes
+	} else {
+		scope = client.ReadWriteScopes
+	}
+
+	client, err := client.NewServiceAccountClient(ctx, clientCredentialsJson, scope)
+	if err != nil {
+		return nil, err
+	}
+	return client, err
+}
+
+func createAPIWrapper(ctx context.Context, flag int, clientCredentialsJson []byte) (*apiwrapper.SheetsApiWrapper, error) {
+	client, err := createClient(ctx, flag, clientCredentialsJson)
+	if err != nil {
+		return nil, err
+	}
+	return apiwrapper.NewSheetsApiWrapper(client), nil
 }
