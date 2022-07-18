@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/jo-hoe/google-sheets/client"
 )
@@ -59,7 +58,7 @@ func Test_CreateSheet(t *testing.T) {
 	}
 	mockClient := client.CreateMockClient(mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
-	actual, err := wrappper.CreateSheet("spreadSheetId", int32(time.Now().UnixMilli()/1000), "Sheet1")
+	actual, err := wrappper.CreateSheet("spreadSheetId", "Sheet1")
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}

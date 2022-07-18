@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"syscall"
-	"time"
 
 	"github.com/jo-hoe/google-sheets/apiwrapper"
 )
@@ -45,7 +44,7 @@ func NewSheetWriter(client *http.Client, spreadSheetId string, sheetName string,
 	}
 	if err != nil && hasFlag(flag, O_CREATE) {
 		// create new with an id = current timestamp
-		_, err = wrapper.CreateSheet(spreadSheetId, int32(time.Now().UnixMilli()/1000), sheetName)
+		_, err = wrapper.CreateSheet(spreadSheetId, sheetName)
 		if err != nil {
 			return nil, err
 		}

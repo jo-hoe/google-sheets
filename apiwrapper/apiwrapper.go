@@ -203,14 +203,13 @@ func (wrapper SheetsApiWrapper) GetSheetData(spreadSheetId string, sheetName str
 	return truncateExtraneousData(resp.Body)
 }
 
-func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetId int32, sheetName string) (id int32, err error) {
+func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetName string) (id int32, err error) {
 	body := updateRequest{}
 	body.IncludeSpreadsheetInResponse = true
 	body.Request = []batchRequest{{
 		AddSheet: &addSheet{
 			Properties: spreadSheetProperties{
-				Title:   sheetName,
-				SheetID: sheetId,
+				Title: sheetName,
 			},
 		}}}
 
