@@ -33,9 +33,11 @@ func NewSheetWriter(client *http.Client, spreadSheetId string, sheetName string,
 	_, err := wrapper.GetSheetId(spreadSheetId, sheetName)
 
 	if err == nil && hasFlag(flag, O_EXCL) && hasFlag(flag, O_CREATE) {
+		// if file exist and should not -> return error
 		return nil, fmt.Errorf("sheet %s already exists in spreadsheet %s", sheetName, spreadSheetId)
 	}
 	if err == nil && hasFlag(flag, O_TRUNC) {
+		// if file exists and content should be truncated -> clear sheet
 		err = wrapper.ClearSheet(spreadSheetId, sheetName)
 		if err != nil {
 			return nil, err
