@@ -45,8 +45,6 @@ fmt.Printf("results: %v", csvResult)
 ### General
 
 The offical documentation can be found here: <https://developers.google.com/sheets/api/guides/authorizing>.
-Note, that there is no possiblity to reduce the API access to only a specific sheet.
-To mitigate that, consider to use a dedicated service account for your google sheets.
 
 ### Creating the key file
 
