@@ -22,23 +22,16 @@ const (
 	O_TRUNC  int = syscall.O_TRUNC // truncate regular writable sheet when opened.
 )
 
-func Remove(ctx context.Context, spreadSheetId string, sheetName string, clientCredentialsJson []byte) error {
-	wrapper, err := createAPIWrapper(ctx, O_RDWR, clientCredentialsJson)
+func Remove(ctx context.Context, spreadSheetId string, sheetId int32, clientCredentialsJson []byte) error {
+	client, err := createClient(ctx, O_RDWR, clientCredentialsJson)
 	if err != nil {
 		return err
 	}
-	sheetId, err := wrapper.GetSheetId(spreadSheetId, sheetName)
-	if err != nil {
-		return err
-	}
-	return wrapper.DeleteSheet(spreadSheetId, sheetId)
+	return RemoveSheetWithClient(spreadSheetId, sheetId, client)
 }
 
-func RemoveById(ctx context.Context, spreadSheetId string, sheetId int32, clientCredentialsJson []byte) error {
-	wrapper, err := createAPIWrapper(ctx, O_RDWR, clientCredentialsJson)
-	if err != nil {
-		return err
-	}
+func RemoveSheetWithClient(spreadSheetId string, sheetId int32, client *http.Client) error {
+	wrapper := apiwrapper.NewSheetsApiWrapper(client)
 
 	return wrapper.DeleteSheet(spreadSheetId, sheetId)
 }
@@ -48,6 +41,10 @@ func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag
 	if err != nil {
 		return nil, err
 	}
+	return OpenSheetWithClient(spreadSheetId, sheetName, flag, client)
+}
+
+func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, client *http.Client) (*Sheet, error) {
 	wrapper := apiwrapper.NewSheetsApiWrapper(client)
 
 	// check if file exists
@@ -90,7 +87,6 @@ func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag
 		id:            id,
 		sheetName:     sheetName,
 		spreadSheetId: spreadSheetId,
-		client:        client,
 		reader:        reader,
 		writer:        writer,
 	}, nil
@@ -113,12 +109,4 @@ func createClient(ctx context.Context, flag int, clientCredentialsJson []byte) (
 		return nil, err
 	}
 	return client, err
-}
-
-func createAPIWrapper(ctx context.Context, flag int, clientCredentialsJson []byte) (*apiwrapper.SheetsApiWrapper, error) {
-	client, err := createClient(ctx, flag, clientCredentialsJson)
-	if err != nil {
-		return nil, err
-	}
-	return apiwrapper.NewSheetsApiWrapper(client), nil
 }

@@ -47,7 +47,7 @@ func TestSheet_Integration_Write(t *testing.T) {
 	}
 
 	// clean-up
-	err = RemoveById(context.Background(), sheet.SpreadSheetId(), sheet.Id(), fileContent)
+	err = Remove(context.Background(), sheet.SpreadSheetId(), sheet.Id(), fileContent)
 	if err != nil {
 		t.Errorf("Found error %+v", err)
 	}

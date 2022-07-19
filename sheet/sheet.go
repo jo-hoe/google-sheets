@@ -2,7 +2,6 @@ package sheet
 
 import (
 	"io"
-	"net/http"
 
 	"github.com/jo-hoe/google-sheets/sheet/reader"
 	"github.com/jo-hoe/google-sheets/sheet/writer"
@@ -14,7 +13,6 @@ type Sheet struct {
 	id            int32
 	sheetName     string
 	spreadSheetId string
-	client        *http.Client
 	writer        *writer.SheetWriter
 	reader        *reader.SheetReader
 }
