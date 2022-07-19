@@ -70,9 +70,17 @@ in the working directory
 
 The project contains both unit and integrations tests.
 
-### Integration Test Exception
+### Unit Test Execution
 
-A credentials file and a google spreadsheet needed as prerequisite for the integration tests. You may use the following launch.json file to run the tests.
+The unit test can be excuted using the default golang commands. To run all test execute the following in the parent folder of the repository.
+
+```powershell
+go test ./...
+```
+
+### Integration Test Execution
+
+A credentials file and a google spreadsheet needed as prerequisite for the integration tests. You may use the following launch.json file in VSCode to run the tests.
 
 ```json
 {
