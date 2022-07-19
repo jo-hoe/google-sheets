@@ -9,15 +9,14 @@ Provides an idiomatic way to read and write data from google sheets.
 ## Example Useage
 
 ```golang
-// Open the key file for your GCP service account.
-// (see below how to create that key file)
+// open the key file for your GCP service account (see below how to create that key file)
 jsonServiceAccount, err := ioutil.ReadFile("path\\to\\service_account_key.json")
 if err != nil {
   log.Print(err.Error())
   return
 }
 
-// spread sheet id can be taken from the URL
+// spreadsheet id can be taken from the URL
 // example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
 // the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
 sheet, err := sheet.OpenSheet(context.Background(), "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1", sheet.O_CREATE|sheet.O_RDWR, jsonServiceAccount)
@@ -38,6 +37,8 @@ if err != nil {
   return
 }
 fmt.Printf("results: %v", csvResult)
+
+sheet.Remove(context.Background(), sheet.SpreadSheetId(), sheet.Id(), jsonServiceAccount)
 ```
 
 ## Google Sheets AuthN/AuthZ
