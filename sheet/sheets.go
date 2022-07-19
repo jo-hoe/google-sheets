@@ -70,6 +70,8 @@ func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, clien
 			if err != nil {
 				return nil, err
 			}
+		} else {
+			return nil, fmt.Errorf("sheet with name '%s' not found in spreadsheet '%s'", sheetName, spreadSheetId)
 		}
 	}
 
