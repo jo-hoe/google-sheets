@@ -81,21 +81,21 @@ A credentials file and a google spreadsheet needed as prerequisite for the integ
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug API Wrapper Tests",
+            "name": "API Wrapper Integration Tests",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/apiwrapper/apiwrapper_integration_test.go",
+            "mode": "test",
+            "program": "${workspaceFolder}/api/apiwrapper/apiwrapper_integration_test.go",
             "env": {
                 "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
                 "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"
             },
         },{
-            "name": "Debug Writer Tests",
+            "name": "Sheets Integration Tests",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/writer/sheetwriter_integration_test.go",
+            "mode": "test",
+            "program": "${workspaceFolder}/sheet/sheets_integraton_test.go",
             "env": {
                 "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
                 "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"
