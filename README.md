@@ -9,8 +9,9 @@ Provides an idiomatic way to read and write data from google sheets.
 ## Example Useage
 
 ```golang
-// Creating a http client with credentials of a gcp service account.
-jsonServiceAccount, err := ioutil.ReadFile("path\\to\\serivce_account_file")
+// Open the key file for your GCP service account.
+// (see below how to create that key file)
+jsonServiceAccount, err := ioutil.ReadFile("path\\to\\service_account_key.json")
 if err != nil {
   log.Print(err.Error())
   return
@@ -39,14 +40,20 @@ if err != nil {
 fmt.Printf("results: %v", csvResult)
 ```
 
-## Google Sheets Authorization
+## Google Sheets AuthN/AuthZ
+
+### General
 
 The offical documentation can be found here: <https://developers.google.com/sheets/api/guides/authorizing>.
 Note, that there is no possiblity to reduce the API access to only a specific sheet.
 To mitigate that, consider to use a dedicated service account for your google sheets.
 
-After creating the json key for your service account do not forget to enable the google project in which the key residesit for the sheet api. You may do so using this url scheme;
-<https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=>[project id]
+### Creating the key file
+
+1. [create a gcp service account](https://cloud.google.com/iam/docs/creating-managing-service-accounts#creating)
+2. after creating the service account, ensure that google project in which the service account resides, is enabled to use the sheet api. You verifiy or enable the API using this url scheme <https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=>[my gcp project id]
+3. after the service account is created, take the mail address of that account and [share your spreadsheet with that mail address](https://support.google.com/a/users/answer/9305987?hl=en#)
+4. [create a json key for your GCP service account](https://cloud.google.com/iam/docs/creating-managing-service-account-keys#creating)
   
 ## Linting
 
