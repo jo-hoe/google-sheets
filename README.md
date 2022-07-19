@@ -17,9 +17,9 @@ if err != nil {
 }
 
 // spreadsheet id can be taken from the URL
-// example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T/edit#gid=0
+// example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5luk-vGG54N5T/edit#gid=0
 // the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
-sheet, err := sheet.OpenSheet(context.Background(), "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T", "Sheet1", sheet.O_CREATE|sheet.O_RDWR, jsonServiceAccount)
+sheet, err := sheet.OpenSheet(context.Background(), "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5luk-vGG54N5T", "Sheet1", sheet.O_CREATE|sheet.O_RDWR, jsonServiceAccount)
 if err != nil {
   log.Print(err.Error())
   return
