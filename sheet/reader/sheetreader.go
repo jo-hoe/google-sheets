@@ -7,7 +7,6 @@ import (
 	"github.com/jo-hoe/google-sheets/api/apiwrapper"
 )
 
-// wrapper for io.ReaderCloser
 type SheetReader struct {
 	io.Reader
 	reader        io.Reader
