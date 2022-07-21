@@ -8,8 +8,7 @@ import (
 )
 
 type Sheet struct {
-	io.Reader
-	io.Writer
+	io.ReadWriter
 	id            int32
 	sheetName     string
 	spreadSheetId string
