@@ -2,6 +2,7 @@ package sheet
 
 import (
 	"context"
+	"encoding/csv"
 	"fmt"
 	"reflect"
 	"testing"
@@ -188,6 +189,20 @@ func Test_createClient(t *testing.T) {
 	}
 	if client == nil {
 		t.Error("expected client not to be nil")
+	}
+}
+
+func Test_CSV_Writer_Interface_Support(t *testing.T) {
+	testSheet := &Sheet{}
+	if csv.NewWriter(testSheet) == nil {
+		t.Errorf("expected writer not to be nil")
+	}
+}
+
+func Test_CSV_Reader_Interface_Support(t *testing.T) {
+	testSheet := &Sheet{}
+	if csv.NewReader(testSheet) == nil {
+		t.Errorf("expected writer not to be nil")
 	}
 }
 
