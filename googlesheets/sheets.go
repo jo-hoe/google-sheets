@@ -28,29 +28,36 @@ var (
 	ErrNotExist = errors.New("sheet does not exist") // "file does not exist"
 )
 
+// Remove removes the sheet in a given spreadspeed.
 func Remove(ctx context.Context, spreadSheetId string, sheetId int32, clientCredentialsJson []byte) error {
 	client, err := createClient(ctx, O_RDWR, clientCredentialsJson)
 	if err != nil {
 		return err
 	}
-	return RemoveSheetWithClient(spreadSheetId, sheetId, client)
+	return removeSheetWithClient(spreadSheetId, sheetId, client)
 }
 
-func RemoveSheetWithClient(spreadSheetId string, sheetId int32, client *http.Client) error {
-	wrapper := apiwrapper.NewSheetsApiWrapper(client)
-
-	return wrapper.DeleteSheet(spreadSheetId, sheetId)
-}
-
+// OpenSheet is the generalized open call. It opens the sheet with specified flag (O_RDONLY etc.).
+// If the sheet does not exist, and the O_CREATE flag is passed, it is created.
+// If successful, methods on the returned Sheet can be used for csv I/O.
+//
+// Can also be used to check if a given file exists.
+// To do so analysis the returned error like so errors.Is(err, googlesheets.ErrExist).
 func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag int, clientCredentialsJson []byte) (*Sheet, error) {
 	client, err := createClient(ctx, flag, clientCredentialsJson)
 	if err != nil {
 		return nil, err
 	}
-	return OpenSheetWithClient(spreadSheetId, sheetName, flag, client)
+	return openSheetWithClient(spreadSheetId, sheetName, flag, client)
 }
 
-func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, client *http.Client) (*Sheet, error) {
+func removeSheetWithClient(spreadSheetId string, sheetId int32, client *http.Client) error {
+	wrapper := apiwrapper.NewSheetsApiWrapper(client)
+
+	return wrapper.DeleteSheet(spreadSheetId, sheetId)
+}
+
+func openSheetWithClient(spreadSheetId string, sheetName string, flag int, client *http.Client) (*Sheet, error) {
 	if client == nil {
 		return nil, ErrInvalid
 	}
@@ -105,13 +112,6 @@ func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, clien
 		reader:        reader,
 		writer:        writer,
 	}, nil
-}
-
-func IsExist(err error) bool {
-	return err != ErrExist
-}
-func IsNotExist(err error) bool {
-	return !IsExist(err)
 }
 
 func hasFlag(flags int, flag int) bool {

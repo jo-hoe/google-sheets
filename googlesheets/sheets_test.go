@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -36,7 +37,7 @@ func Test_hasFlag_without_flags(t *testing.T) {
 	}
 }
 
-func Test_OpenSheetWithClient(t *testing.T) {
+func Test_openSheetWithClient(t *testing.T) {
 	// prepare
 	expectedSpreadsheetId := "spreadsheetId"
 	expectedSheetName := "sheetName"
@@ -62,7 +63,7 @@ func Test_OpenSheetWithClient(t *testing.T) {
 	mockClient := client.CreateMockClient(sheetResponse, truncatedSheetResponse)
 
 	// test
-	actual, err := OpenSheetWithClient(expectedSpreadsheetId, expectedSheetName, O_RDWR|O_TRUNC, mockClient)
+	actual, err := openSheetWithClient(expectedSpreadsheetId, expectedSheetName, O_RDWR|O_TRUNC, mockClient)
 
 	if err != nil {
 		t.Errorf("found error %+v", err)
@@ -73,7 +74,7 @@ func Test_OpenSheetWithClient(t *testing.T) {
 	assertEqual(t, expectedSpreadsheetId, actual.SpreadSheetId())
 }
 
-func Test_OpenSheetWithClient_O_CREATE(t *testing.T) {
+func Test_openSheetWithClient_O_CREATE(t *testing.T) {
 	// prepare
 	expectedSpreadsheetId := "spreadsheetId"
 	expectedSheetName := "sheetName"
@@ -102,7 +103,7 @@ func Test_OpenSheetWithClient_O_CREATE(t *testing.T) {
 	mockClient := client.CreateMockClient(sheetResponse, creationResponse)
 
 	// test
-	actual, err := OpenSheetWithClient(expectedSpreadsheetId, expectedSheetName, O_CREATE, mockClient)
+	actual, err := openSheetWithClient(expectedSpreadsheetId, expectedSheetName, O_CREATE, mockClient)
 
 	if err != nil {
 		t.Errorf("found error %+v", err)
@@ -113,7 +114,7 @@ func Test_OpenSheetWithClient_O_CREATE(t *testing.T) {
 	assertEqual(t, expectedSpreadsheetId, actual.SpreadSheetId())
 }
 
-func Test_OpenSheetWithClient_O_EXCL(t *testing.T) {
+func Test_openSheetWithClient_O_EXCL(t *testing.T) {
 	// prepare
 	expectedSpreadsheetId := "spreadsheetId"
 	expectedSheetName := "sheetName"
@@ -136,17 +137,17 @@ func Test_OpenSheetWithClient_O_EXCL(t *testing.T) {
 	mockClient := client.CreateMockClient(sheetResponse)
 
 	// test
-	actual, err := OpenSheetWithClient(expectedSpreadsheetId, expectedSheetName, O_CREATE|O_EXCL, mockClient)
+	actual, err := openSheetWithClient(expectedSpreadsheetId, expectedSheetName, O_CREATE|O_EXCL, mockClient)
 
-	if err == nil {
-		t.Errorf("expected error but found non")
+	if !errors.Is(err, ErrExist) {
+		t.Errorf("expected '%v' but found '%v'", ErrExist, err)
 	}
 	if actual != nil {
 		t.Errorf("expected that sheet is not created")
 	}
 }
 
-func Test_OpenSheetWithClient_Non_Existing_File(t *testing.T) {
+func Test_openSheetWithClient_Non_Existing_File(t *testing.T) {
 	// mock a scenario where the sheet exists already
 	sheetResponse := client.ResponseSummery{
 		ResponseCode: 200,
@@ -156,10 +157,10 @@ func Test_OpenSheetWithClient_Non_Existing_File(t *testing.T) {
 	mockClient := client.CreateMockClient(sheetResponse)
 
 	// test
-	actual, err := OpenSheetWithClient("spreadSheetId", "sheetName", O_RDONLY, mockClient)
+	actual, err := openSheetWithClient("spreadSheetId", "sheetName", O_RDONLY, mockClient)
 
-	if err == nil {
-		t.Errorf("expected error but found non")
+	if !errors.Is(err, ErrNotExist) {
+		t.Errorf("expected '%v' but found '%v'", ErrNotExist, err)
 	}
 	if actual != nil {
 		t.Errorf("expected that sheet is not created")
@@ -174,7 +175,7 @@ func Test_RemoveSheetWithClient(t *testing.T) {
 
 	mockClient := client.CreateMockClient(sheetResponse)
 
-	err := RemoveSheetWithClient("spreadSheetId", 1, mockClient)
+	err := removeSheetWithClient("spreadSheetId", 1, mockClient)
 
 	if err != nil {
 		t.Errorf("found error '%+v'", err)
