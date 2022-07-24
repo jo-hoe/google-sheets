@@ -41,6 +41,34 @@ fmt.Printf("results: %v", csvResult)
 sheet.Remove(context.Background(), sheet.SpreadSheetId(), sheet.Id(), jsonServiceAccount)
 ```
 
+### Incomplete Lines
+
+You google sheet may include non complete lines.
+
+|Title A|Title B|
+|-------|-------|
+|0|1|
+|2| |
+
+In this case you should deactivate the field length validation.
+
+```golang
+csvReader := csv.NewReader(sheet)
+csvReader.FieldsPerRecord = -1
+csvResult, err := csvReader.ReadAll()
+if err != nil {
+  log.Print(err.Error())
+  return
+}
+fmt.Printf("results: %v", csvResult)
+```
+
+The output will be as follows
+
+```bash
+result: [[0 1] [2]]
+```
+
 ## Google Sheets AuthN/AuthZ
 
 ### General
