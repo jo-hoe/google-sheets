@@ -59,7 +59,7 @@ func Test_NewSheetReader_Read_Partial(t *testing.T) {
 		{"2"},
 	}
 
-	if reflect.DeepEqual(expected, actual) {
+	if !reflect.DeepEqual(expected, actual) {
 		t.Errorf("expected '%v' found '%v'", expected, actual)
 	}
 }
