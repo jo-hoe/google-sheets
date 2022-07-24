@@ -19,7 +19,7 @@ if err != nil {
 // spreadsheet id can be taken from the URL
 // example URL: https://docs.google.com/spreadsheets/d/c8ACvfAd4X09Hi9mCl4qcBidP635S8z5luk-vGG54N5T/edit#gid=0
 // the spreadsheet ID would be "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5lukxvGG54N5T"
-sheet, err := googlesheets.OpenSheet(context.Background(), "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5luk-vGG54N5T", "Sheet1", googlesheets.O_CREATE|googlesheets.O_RDWR, jsonServiceAccount)
+sheet, err := gs.OpenSheet(context.Background(), "c8ACvfAd4X09Hi9mCl4qcBidP635S8z5luk-vGG54N5T", "Sheet1", gs.O_CREATE|gs.O_RDWR, jsonServiceAccount)
 if err != nil {
   log.Print(err.Error())
   return
@@ -38,7 +38,7 @@ if err != nil {
 }
 fmt.Printf("results: %v", csvResult)
 
-googlesheets.Remove(context.Background(), googlesheets.SpreadSheetId(), googlesheets.Id(), jsonServiceAccount)
+gs.Remove(context.Background(), gs.SpreadSheetId(), gs.Id(), jsonServiceAccount)
 ```
 
 ### Incomplete Lines

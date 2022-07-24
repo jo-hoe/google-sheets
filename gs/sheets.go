@@ -1,4 +1,4 @@
-package google
+package gs
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 
 	"github.com/jo-hoe/google-sheets/api/apiwrapper"
 	"github.com/jo-hoe/google-sheets/api/client"
-	"github.com/jo-hoe/google-sheets/googlesheets/reader"
-	"github.com/jo-hoe/google-sheets/googlesheets/writer"
+	"github.com/jo-hoe/google-sheets/gs/reader"
+	"github.com/jo-hoe/google-sheets/gs/writer"
 )
 
 const (
@@ -42,7 +42,7 @@ func Remove(ctx context.Context, spreadSheetId string, sheetId int32, clientCred
 // If successful, methods on the returned Sheet can be used for csv I/O.
 //
 // Can also be used to check if a given file exists.
-// To do so analysis the returned error like so errors.Is(err, googlesheets.ErrExist).
+// To do so analysis the returned error like so errors.Is(err, gs.ErrExist).
 func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag int, clientCredentialsJson []byte) (*Sheet, error) {
 	client, err := createClient(ctx, flag, clientCredentialsJson)
 	if err != nil {

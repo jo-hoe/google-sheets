@@ -1,10 +1,10 @@
-package google
+package gs
 
 import (
 	"io"
 
-	"github.com/jo-hoe/google-sheets/googlesheets/reader"
-	"github.com/jo-hoe/google-sheets/googlesheets/writer"
+	"github.com/jo-hoe/google-sheets/gs/reader"
+	"github.com/jo-hoe/google-sheets/gs/writer"
 )
 
 type Sheet struct {

@@ -1,4 +1,4 @@
-package google
+package gs
 
 import (
 	"context"
