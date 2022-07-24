@@ -1,15 +1,15 @@
-package sheet
+package google
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"syscall"
 
 	"github.com/jo-hoe/google-sheets/api/apiwrapper"
 	"github.com/jo-hoe/google-sheets/api/client"
-	"github.com/jo-hoe/google-sheets/sheet/reader"
-	"github.com/jo-hoe/google-sheets/sheet/writer"
+	"github.com/jo-hoe/google-sheets/googlesheets/reader"
+	"github.com/jo-hoe/google-sheets/googlesheets/writer"
 )
 
 const (
@@ -20,6 +20,12 @@ const (
 	O_CREATE int = syscall.O_CREAT // create a new sheet if none exists.
 	O_EXCL   int = syscall.O_EXCL  // used with O_CREATE, sheet must not exist.
 	O_TRUNC  int = syscall.O_TRUNC // truncate regular writable sheet when opened.
+)
+
+var (
+	ErrInvalid  = errors.New("invalid argument")     // "invalid argument"
+	ErrExist    = errors.New("sheet already exists") // "file already exists"
+	ErrNotExist = errors.New("sheet does not exist") // "file does not exist"
 )
 
 func Remove(ctx context.Context, spreadSheetId string, sheetId int32, clientCredentialsJson []byte) error {
@@ -45,16 +51,23 @@ func OpenSheet(ctx context.Context, spreadSheetId string, sheetName string, flag
 }
 
 func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, client *http.Client) (*Sheet, error) {
+	if client == nil {
+		return nil, ErrInvalid
+	}
+
 	wrapper := apiwrapper.NewSheetsApiWrapper(client)
 
 	// check if file exists
 	id, err := wrapper.GetSheetId(spreadSheetId, sheetName)
-	sheetExists := err == nil
+	if err != nil {
+		return nil, err
+	}
+	sheetExists := id > -1
 
 	if sheetExists {
 		if hasFlag(flag, O_EXCL) && hasFlag(flag, O_CREATE) {
 			// if file exist and should not -> return error
-			return nil, fmt.Errorf("sheet %s already exists in spreadsheet %s", sheetName, spreadSheetId)
+			return nil, ErrExist
 		}
 		if hasFlag(flag, O_TRUNC) {
 			// if file exists and content should be truncated -> clear sheet
@@ -71,7 +84,7 @@ func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, clien
 				return nil, err
 			}
 		} else {
-			return nil, fmt.Errorf("sheet with name '%s' not found in spreadsheet '%s'", sheetName, spreadSheetId)
+			return nil, ErrNotExist
 		}
 	}
 
@@ -92,6 +105,13 @@ func OpenSheetWithClient(spreadSheetId string, sheetName string, flag int, clien
 		reader:        reader,
 		writer:        writer,
 	}, nil
+}
+
+func IsExist(err error) bool {
+	return err != ErrExist
+}
+func IsNotExist(err error) bool {
+	return !IsExist(err)
 }
 
 func hasFlag(flags int, flag int) bool {

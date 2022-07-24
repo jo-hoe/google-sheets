@@ -227,7 +227,10 @@ func (wrapper SheetsApiWrapper) CreateSheet(spreadSheetId string, sheetName stri
 	return wrapper.findSheetIdInResponse(result.UpdatedSpreadsheet.Sheets, sheetName)
 }
 
-func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (int32, error) {
+// Returns the id of a sheet with a given spreadSheetId and sheetName
+// If the sheet does not exist, the sheetId will be -1 and err will be nil.
+// In case an issue with the API or deserizalization occurs, the error is returned.
+func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName string) (sheetId int32, err error) {
 	url := fmt.Sprintf(baseUrl, spreadSheetId)
 	resp, err := wrapper.httpClient.Get(url)
 
@@ -392,7 +395,7 @@ func (wrapper SheetsApiWrapper) findSheetIdInResponse(allSheets []sheet, sheetNa
 			return sheet.Properties.SheetID, nil
 		}
 	}
-	return -1, fmt.Errorf("sheet was not found")
+	return -1, nil
 }
 
 func (wrapper SheetsApiWrapper) createJSONPostRequest(url string, body any) (request *http.Request, err error) {
