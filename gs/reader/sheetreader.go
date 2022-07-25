@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/jo-hoe/google-sheets/api/apiwrapper"
+	"github.com/jo-hoe/google-sheets/internal/apiwrapper"
 )
 
 type SheetReader struct {

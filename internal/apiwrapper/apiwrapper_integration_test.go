@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jo-hoe/google-sheets/api/client"
+	"github.com/jo-hoe/google-sheets/internal/client"
 )
 
 func Test_Integration_Replace(t *testing.T) {

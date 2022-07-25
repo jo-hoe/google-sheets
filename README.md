@@ -128,7 +128,7 @@ A credentials file and a google spreadsheet needed as prerequisite for the integ
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceFolder}/api/apiwrapper/apiwrapper_integration_test.go",
+            "program": "${workspaceFolder}/internal/apiwrapper/apiwrapper_integration_test.go",
             "env": {
                 "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
                 "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"

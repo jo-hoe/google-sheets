@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"testing"
 
-	"github.com/jo-hoe/google-sheets/api/client"
+	"github.com/jo-hoe/google-sheets/internal/client"
 )
 
 func TestSheetWriter_Write(t *testing.T) {

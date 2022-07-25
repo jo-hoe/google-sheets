@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jo-hoe/google-sheets/api/client"
+	"github.com/jo-hoe/google-sheets/internal/client"
 )
 
 func Test_GetSheetId(t *testing.T) {
