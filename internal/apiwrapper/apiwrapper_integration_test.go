@@ -11,20 +11,6 @@ import (
 	"github.com/jo-hoe/google-sheets/internal/client"
 )
 
-func Test_Integration_Replace(t *testing.T) {
-	wrapper, spreadSheetId := createWrapper(t)
-	id := createTestSheet(t, wrapper, spreadSheetId)
-
-	err := wrapper.ReplaceSheetData(spreadSheetId, fmt.Sprint(id), [][]string{
-		{"0", "1"},
-		{"2", "3"},
-	})
-	if err != nil {
-		t.Errorf("Found error during sheet creation %+v", err)
-	}
-	deleteTestSheet(t, wrapper, spreadSheetId, id)
-}
-
 func Test_Integration_AppendToSheet(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
 	id := createTestSheet(t, wrapper, spreadSheetId)

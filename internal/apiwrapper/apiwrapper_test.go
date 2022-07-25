@@ -72,38 +72,6 @@ func Test_CreateSheet(t *testing.T) {
 	}
 }
 
-func Test_AutoResizeSheet(t *testing.T) {
-	mockResponse := client.ResponseSummery{
-		ResponseCode: 200,
-	}
-	mockClient := client.CreateMockClient(mockResponse, mockResponse)
-	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.AutoResizeSheet("spreadSheatId", 1)
-	if err != nil {
-		t.Errorf("found error while reading to buffer %v", err)
-	}
-
-	if err != nil {
-		t.Error("expected no error but found", err)
-	}
-}
-
-func Test_WriteSheet(t *testing.T) {
-	mockResponse := client.ResponseSummery{
-		ResponseCode: 200,
-	}
-	mockClient := client.CreateMockClient(mockResponse, mockResponse)
-	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.WriteSheet("spreadSheatId", "spreadSheetName", [][]string{})
-	if err != nil {
-		t.Errorf("found error while reading to buffer %v", err)
-	}
-
-	if err != nil {
-		t.Error("expected no error but found", err)
-	}
-}
-
 func Test_AppendToSheet(t *testing.T) {
 	mockResponse := client.ResponseSummery{
 		ResponseCode: 200,
@@ -111,22 +79,6 @@ func Test_AppendToSheet(t *testing.T) {
 	mockClient := client.CreateMockClient(mockResponse, mockResponse)
 	wrappper := NewSheetsApiWrapper(mockClient)
 	err := wrappper.AppendToSheet("spreadSheatId", "spreadSheetName", [][]string{})
-	if err != nil {
-		t.Errorf("found error while reading to buffer %v", err)
-	}
-
-	if err != nil {
-		t.Error("expected no error but found", err)
-	}
-}
-
-func Test_UpdateSheetMetaData(t *testing.T) {
-	mockResponse := client.ResponseSummery{
-		ResponseCode: 200,
-	}
-	mockClient := client.CreateMockClient(mockResponse)
-	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.UpdateSheetMetaData("spreadSheatId", 1, "Sheet2")
 	if err != nil {
 		t.Errorf("found error while reading to buffer %v", err)
 	}
@@ -174,37 +126,6 @@ func Test_GetSheetData(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, stringActual) {
 		t.Errorf("expected '%v' found '%v'", expected, stringActual)
-	}
-}
-
-func Test_ReplaceSheet(t *testing.T) {
-	sheetsMockResponse := client.ResponseSummery{
-		ResponseCode: 200,
-		ResponseBody: `{
-			"sheets": [{
-					"properties": {
-						"sheetId": 1,
-						"title": "sheetName"
-					}
-				}
-			]
-		}`,
-	}
-	sheetMockResponse := client.ResponseSummery{
-		ResponseCode: 200,
-		ResponseBody: `{
-			"properties": {
-				"sheetId": 1,
-				"title": "title"
-			}
-		}`,
-	}
-	mockClient := client.CreateMockClient(sheetsMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse, sheetMockResponse)
-	wrappper := NewSheetsApiWrapper(mockClient)
-	err := wrappper.ReplaceSheetData("spreadSheatId", "sheetName", [][]string{})
-
-	if err != nil {
-		t.Error("expected no error but found", err)
 	}
 }
 

@@ -117,27 +117,6 @@ func NewSheetsApiWrapper(httpClient *http.Client) *SheetsApiWrapper {
 	}
 }
 
-func (wrapper SheetsApiWrapper) UpdateSheetMetaData(spreadSheetId string, sheetId int32, newSheetName string) (err error) {
-	body := updateRequest{}
-	body.Request = []batchRequest{{
-		UpdateSheetProperties: &updateSheetProperties{
-			FieldsToUpdate: "title",
-			Properties: spreadSheetProperties{
-				Title:   newSheetName,
-				SheetID: sheetId,
-			}}}}
-
-	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
-	if response != nil {
-		response.Close()
-	}
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheetId string, sheetId int32) (err error) {
 	body := updateRequest{}
 	body.Request = []batchRequest{{
@@ -150,35 +129,6 @@ func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheetId string, sheetId int32)
 		response.Close()
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (wrapper SheetsApiWrapper) AutoResizeSheet(spreadSheetId string, sheetId int32) (err error) {
-	body := updateRequest{}
-	body.Request = []batchRequest{{
-		AutoResizeDimensions: &autoResizeDimensions{
-			Dimensions: dimensions{
-				SheetId:   sheetId,
-				Dimension: "ROWS",
-			},
-		}}}
-
-	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
-	if response != nil {
-		response.Close()
-	}
-	if err != nil {
-		return err
-	}
-	body.Request[0].AutoResizeDimensions.Dimensions.Dimension = "COLUMNS"
-	response, err = wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
-	if response != nil {
-		response.Close()
-	}
 	if err != nil {
 		return err
 	}
@@ -250,27 +200,6 @@ func (wrapper SheetsApiWrapper) GetSheetId(spreadSheetId string, sheetName strin
 	return wrapper.findSheetIdInResponse(result.Sheets, sheetName)
 }
 
-func (wrapper SheetsApiWrapper) WriteSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
-	body := valueInput{}
-	body.ValueRange.Range = sheetName
-	body.ValueInputOption = valueInputOption
-	body.ValueRange.MajorDimension = majorDimension
-	body.DateTimeRenderOption = "FORMATTED_STRING"
-	body.IncludeValuesInResponse = false
-	body.ResponseValueRenderOption = "UNFORMATTED_VALUE"
-	body.ValueRange.Values = data
-
-	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateValuesUrl, spreadSheetId), body)
-	if response != nil {
-		response.Close()
-	}
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (wrapper SheetsApiWrapper) AppendToSheet(spreadSheetId string, sheetName string, data [][]string) (err error) {
 	body := valueRange{}
 	body.Range = sheetName
@@ -294,59 +223,6 @@ func (wrapper SheetsApiWrapper) AppendToSheet(spreadSheetId string, sheetName st
 // delete all data from a sheet
 func (wrapper SheetsApiWrapper) ClearSheet(spreadSheetId string, sheetName string) (err error) {
 	_, err = wrapper.postSheetRequest(fmt.Sprintf(clearSheetUrl, spreadSheetId, sheetName), nil)
-	return err
-}
-
-// copies a sheet
-func (wrapper SheetsApiWrapper) CopySheet(spreadSheetId string, sheetId int32, destinationSpreadsheetId string) (id int32, err error) {
-	body := copyRequest{
-		DestinationSpreadsheetId: destinationSpreadsheetId,
-	}
-	response, err := wrapper.postSheetRequest(fmt.Sprintf(copySheetUrl, spreadSheetId, sheetId), body)
-	if err != nil {
-		return -1, err
-	}
-
-	result := spreadSheetProperties{}
-	err = deserialize[spreadSheet](response, &result)
-	if err != nil {
-		return -1, err
-	}
-
-	return result.SheetID, nil
-}
-
-// Deletes data in the sheet and replaces it with new data.
-// Takes a backup of the current data during the processing of the request. This
-// backup it deleted in the last set of this function.
-func (wrapper SheetsApiWrapper) ReplaceSheetData(spreadSheetId string, initialSheetName string, data [][]string) (err error) {
-	initialSheetId, err := wrapper.GetSheetId(spreadSheetId, initialSheetName)
-	if err != nil {
-		return err
-	}
-
-	// create a backup
-	backupId, err := wrapper.CopySheet(spreadSheetId, initialSheetId, spreadSheetId)
-	if err != nil {
-		return err
-	}
-
-	err = wrapper.ClearSheet(spreadSheetId, initialSheetName)
-	if err != nil {
-		return err
-	}
-	err = wrapper.WriteSheet(spreadSheetId, initialSheetName, data)
-	if err != nil {
-		return err
-	}
-	err = wrapper.AutoResizeSheet(spreadSheetId, initialSheetId)
-	if err != nil {
-		return err
-	}
-	err = wrapper.DeleteSheet(spreadSheetId, backupId)
-	if err != nil {
-		return err
-	}
 	return err
 }
 
