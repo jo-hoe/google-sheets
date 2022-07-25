@@ -18,8 +18,6 @@ const baseUrl = "https://sheets.googleapis.com/v4/spreadsheets/%s"
 // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
 const csvUrlTemplate = baseUrl + "/values/%s?alt=json&prettyPrint=false"
 const updateSheetUrl = baseUrl + ":batchUpdate"
-const updateValuesUrl = baseUrl + "/values:batchUpdate"
-const copySheetUrl = baseUrl + "/sheets/%d:copyTo"
 const clearSheetUrl = baseUrl + "/values/%s:clear"
 const appendSheetUrl = baseUrl + "/values/%s:append"
 
@@ -53,14 +51,8 @@ type updateRequest struct {
 }
 
 type batchRequest struct {
-	UpdateSheetProperties *updateSheetProperties `json:"updateSheetProperties,omitempty"`
 	DeleteSheet           *deleteSheet           `json:"deleteSheet,omitempty"`
-	AutoResizeDimensions  *autoResizeDimensions  `json:"autoResizeDimensions,omitempty"`
 	AddSheet              *addSheet              `json:"addSheet,omitempty"`
-}
-
-type copyRequest struct {
-	DestinationSpreadsheetId string `json:"destinationSpreadsheetId,omitempty"`
 }
 
 type batchResponse struct {
@@ -75,30 +67,8 @@ type addSheet struct {
 	Properties spreadSheetProperties `json:"properties,omitempty"`
 }
 
-type updateSheetProperties struct {
-	Properties     spreadSheetProperties `json:"properties"`
-	FieldsToUpdate string                `json:"fields"`
-}
-
 type deleteSheet struct {
 	SheetId int32 `json:"sheetId"`
-}
-
-type autoResizeDimensions struct {
-	Dimensions dimensions `json:"dimensions"`
-}
-
-type dimensions struct {
-	SheetId   int32  `json:"sheetId"`
-	Dimension string `json:"dimension"`
-}
-
-type valueInput struct {
-	ValueInputOption          string     `json:"valueInputOption"`
-	ValueRange                valueRange `json:"data"`
-	IncludeValuesInResponse   bool       `json:"includeValuesInResponse"`
-	ResponseValueRenderOption string     `json:"responseValueRenderOption"`
-	DateTimeRenderOption      string     `json:"responseDateTimeRenderOption"`
 }
 
 type valueRange struct {

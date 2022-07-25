@@ -13,16 +13,16 @@ import (
 
 func Test_Integration_AppendToSheet(t *testing.T) {
 	wrapper, spreadSheetId := createWrapper(t)
-	id := createTestSheet(t, wrapper, spreadSheetId)
+	sheetName, id := createTestSheet(t, wrapper, spreadSheetId)
 
-	err := wrapper.AppendToSheet(spreadSheetId, fmt.Sprint(id), [][]string{
+	err := wrapper.AppendToSheet(spreadSheetId, sheetName, [][]string{
 		{"0", "1"},
 		{"2", "3"},
 	})
 	if err != nil {
 		t.Errorf("Found error during sheet creation %+v", err)
 	}
-	err = wrapper.AppendToSheet(spreadSheetId, fmt.Sprint(id), [][]string{
+	err = wrapper.AppendToSheet(spreadSheetId, sheetName, [][]string{
 		{"4", "5"},
 		{"6", "7"},
 	})
@@ -49,9 +49,9 @@ func Test_Integration_Create_Get_Delete(t *testing.T) {
 	deleteTestSheet(t, wrapper, spreadSheetId, createdId)
 }
 
-func createTestSheet(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId string) int32 {
+func createTestSheet(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId string) (string, int32) {
 	sheetName := fmt.Sprint(time.Now().UnixMilli() / 1000)
-	return createTestSheetWithId(t, wrapper, spreadSheetId, sheetName)
+	return sheetName, createTestSheetWithId(t, wrapper, spreadSheetId, sheetName)
 }
 
 func createTestSheetWithId(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId string, sheetName string) int32 {
