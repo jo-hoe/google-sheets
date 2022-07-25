@@ -1,5 +1,5 @@
 # Google Sheets
-
+[![Go Reference](https://pkg.go.dev/github.com/jo-hoe/google-sheets.svg)](https://pkg.go.dev/github.com/jo-hoe/google-sheets)
 [![Test Status](https://github.com/jo-hoe/google-sheets/workflows/test/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=test)
 [![Lint Status](https://github.com/jo-hoe/google-sheets/workflows/lint/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=lint)
 [![CodeQL Status](https://github.com/jo-hoe/google-sheets/workflows/CodeQL/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=CodeQL)
