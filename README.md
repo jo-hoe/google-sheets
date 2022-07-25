@@ -43,7 +43,7 @@ gs.Remove(context.Background(), gs.SpreadSheetId(), gs.Id(), jsonServiceAccount)
 
 ### Incomplete Lines
 
-You google sheet may include non complete lines.
+Your google sheet may include non complete lines.
 
 |Title A|Title B|
 |-------|-------|
