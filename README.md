@@ -43,7 +43,7 @@ gs.Remove(context.Background(), gs.SpreadSheetId(), gs.Id(), jsonServiceAccount)
 
 ### Incomplete Lines
 
-You google sheet may include non complete lines.
+Your google sheet may include non complete lines.
 
 |Title A|Title B|
 |-------|-------|
@@ -118,9 +118,6 @@ A credentials file and a google spreadsheet needed as prerequisite for the integ
 
 ```json
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -138,7 +135,7 @@ A credentials file and a google spreadsheet needed as prerequisite for the integ
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceFolder}/sheet/sheets_integraton_test.go",
+            "program": "${workspaceFolder}/gs/gs_integraton_test.go",
             "env": {
                 "CREDENTIALS_FILE_PATH": "C:\\Folder\\file-name-352919-3f8fa23b9bba.json",
                 "SPREADSHEET_ID": "1yxmv2lTtOtvpkBi-5hSMq86CHFMfYq6kdjfasudfasih"
