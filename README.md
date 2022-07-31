@@ -7,7 +7,6 @@
 [![CodeQL Status](https://github.com/jo-hoe/google-sheets/workflows/CodeQL/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=CodeQL)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jo-hoe/google-sheets)](https://goreportcard.com/report/github.com/jo-hoe/google-sheets)
 
-
 Provides an idiomatic way to read and write data from google sheets.
 
 ## Example Useage
