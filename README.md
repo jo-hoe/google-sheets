@@ -1,7 +1,7 @@
 # Google Sheets
+
 [![Go Reference](https://pkg.go.dev/badge/jo-hoe/google-sheets.svg)](https://pkg.go.dev/github.com/jo-hoe/google-sheets)
 [![Test Status](https://github.com/jo-hoe/google-sheets/workflows/test/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=test)
-[![Coverage Status](https://coveralls.io/repos/github/jo-hoe/google-sheets/badge.svg?branch=main)](https://coveralls.io/github/jo-hoe/google-sheets?branch=main)
 [![Lint Status](https://github.com/jo-hoe/google-sheets/workflows/lint/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=lint)
 [![CodeQL Status](https://github.com/jo-hoe/google-sheets/workflows/CodeQL/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=CodeQL)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jo-hoe/google-sheets)](https://goreportcard.com/report/github.com/jo-hoe/google-sheets)
