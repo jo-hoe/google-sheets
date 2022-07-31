@@ -3,6 +3,7 @@
 [![Test Status](https://github.com/jo-hoe/google-sheets/workflows/test/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=test)
 [![Lint Status](https://github.com/jo-hoe/google-sheets/workflows/lint/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=lint)
 [![CodeQL Status](https://github.com/jo-hoe/google-sheets/workflows/CodeQL/badge.svg)](https://github.com/jo-hoe/google-sheets/actions?workflow=CodeQL)
+[![Coverage Status](https://coveralls.io/repos/github/jo-hoe/google-sheets/badge.svg?branch=main)](https://coveralls.io/github/jo-hoe/google-sheets?branch=main)
 
 Provides an idiomatic way to read and write data from google sheets.
 

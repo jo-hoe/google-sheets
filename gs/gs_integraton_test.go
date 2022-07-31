@@ -53,7 +53,7 @@ func TestSheet_Integration_Write(t *testing.T) {
 	}
 }
 
-func TestSheet_Integration_Read_Partical(t *testing.T) {
+func TestSheet_Integration_Read_Incomplete(t *testing.T) {
 	// setup
 	fileContent, spreadSheetId := getPrerequisites(t)
 	sheetName := fmt.Sprint(time.Now().UnixMilli() / 1000)
@@ -98,11 +98,11 @@ func TestSheet_Integration_Read_Partical(t *testing.T) {
 func getPrerequisites(t *testing.T) (fileContent []byte, spreadSheetId string) {
 	filePath := os.Getenv("CREDENTIALS_FILE_PATH")
 	if filePath == "" {
-		t.Skip("No credentials found for intergration test, skipping test")
+		t.Skip("No credentials found for integration test, skipping test")
 	}
 	spreadSheetId = os.Getenv("SPREADSHEET_ID")
 	if spreadSheetId == "" {
-		t.Skip("No spread sheet Id found for intergration test, skipping test")
+		t.Skip("No spread sheet Id found for integration test, skipping test")
 	}
 	fileContent, err := ioutil.ReadFile(filePath)
 	if err != nil {

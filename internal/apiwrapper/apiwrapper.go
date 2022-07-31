@@ -51,8 +51,8 @@ type updateRequest struct {
 }
 
 type batchRequest struct {
-	DeleteSheet           *deleteSheet           `json:"deleteSheet,omitempty"`
-	AddSheet              *addSheet              `json:"addSheet,omitempty"`
+	DeleteSheet *deleteSheet `json:"deleteSheet,omitempty"`
+	AddSheet    *addSheet    `json:"addSheet,omitempty"`
 }
 
 type batchResponse struct {

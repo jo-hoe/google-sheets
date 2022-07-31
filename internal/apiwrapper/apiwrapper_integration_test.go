@@ -72,11 +72,11 @@ func deleteTestSheet(t *testing.T, wrapper *SheetsApiWrapper, spreadSheetId stri
 func createWrapper(t *testing.T) (wrapper *SheetsApiWrapper, spreadSheetId string) {
 	filePath := os.Getenv("CREDENTIALS_FILE_PATH")
 	if filePath == "" {
-		t.Skip("No credentials found for intergration test, skipping test")
+		t.Skip("No credentials found for integration test, skipping test")
 	}
 	sheetId := os.Getenv("SPREADSHEET_ID")
 	if sheetId == "" {
-		t.Skip("No spread sheet Id found for intergration test, skipping test")
+		t.Skip("No spread sheet Id found for integration test, skipping test")
 	}
 	content, err := ioutil.ReadFile(filePath)
 	if err != nil {
