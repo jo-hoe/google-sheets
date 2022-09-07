@@ -119,10 +119,9 @@ func hasFlag(flags int, flag int) bool {
 }
 
 func createClient(ctx context.Context, flag int, clientCredentialsJson []byte) (*http.Client, error) {
-	var scope string
-	if hasFlag(flag, O_RDONLY) {
-		scope = client.ReadOnlyScopes
-	} else {
+	scope := client.ReadOnlyScopes
+	
+	if hasFlag(flag, O_RDWR) {
 		scope = client.ReadWriteScopes
 	}
 
