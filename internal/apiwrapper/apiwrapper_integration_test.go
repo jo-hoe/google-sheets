@@ -3,7 +3,6 @@ package apiwrapper
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -78,7 +77,7 @@ func createWrapper(t *testing.T) (wrapper *SheetsApiWrapper, spreadSheetId strin
 	if sheetId == "" {
 		t.Skip("No spread sheet Id found for integration test, skipping test")
 	}
-	content, err := ioutil.ReadFile(filePath)
+	content, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Skipf("Could not read file %+v", err)
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/csv"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -104,7 +103,7 @@ func getPrerequisites(t *testing.T) (fileContent []byte, spreadSheetId string) {
 	if spreadSheetId == "" {
 		t.Skip("No spread sheet Id found for integration test, skipping test")
 	}
-	fileContent, err := ioutil.ReadFile(filePath)
+	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Skipf("Could not read file %+v", err)
 	}

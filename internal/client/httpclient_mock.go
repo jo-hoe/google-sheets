@@ -2,7 +2,7 @@ package client
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -33,7 +33,7 @@ func CreateMockClient(summeries ...ResponseSummery) *http.Client {
 		return &http.Response{
 			StatusCode: summeries[i].ResponseCode,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString(summeries[i].ResponseBody)),
+			Body: io.NopCloser(bytes.NewBufferString(summeries[i].ResponseBody)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
