@@ -1,6 +1,6 @@
 module github.com/jo-hoe/google-sheets
 
-go 1.18
+go 1.19
 
 require golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0
 
