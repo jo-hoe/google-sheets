@@ -229,7 +229,7 @@ func (wrapper SheetsApiWrapper) postSheetRequestQueryParameter(url string, body 
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("Response was '%s': %s", response.Status, string(responseBody))
+		return nil, fmt.Errorf("response was '%s': %s", response.Status, string(responseBody))
 	}
 
 	return response.Body, nil
