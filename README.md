@@ -69,7 +69,7 @@ fmt.Printf("results: %v", csvResult)
 The output will be as follows
 
 ```bash
-result: [[0 1] [2]]
+result: [["Title A" "Title B"][0 1] [2]]
 ```
 
 ## Google Sheets AuthN/AuthZ
