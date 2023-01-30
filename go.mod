@@ -2,14 +2,15 @@ module github.com/jo-hoe/google-sheets
 
 go 1.19
 
-require golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0
+require golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 
 require (
-	cloud.google.com/go/compute v1.7.0 // indirect
+	cloud.google.com/go/compute v1.18.0 // indirect
+	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
+	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
 
 retract v1.0.0 // published erroneously
