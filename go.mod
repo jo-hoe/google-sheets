@@ -1,8 +1,8 @@
 module github.com/jo-hoe/google-sheets
 
-go 1.19
+go 1.24.0
 
-require golang.org/x/oauth2 v0.30.0
+require golang.org/x/oauth2 v0.33.0
 
 require (
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
