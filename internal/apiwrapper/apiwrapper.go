@@ -96,7 +96,11 @@ func (wrapper SheetsApiWrapper) DeleteSheet(spreadSheetId string, sheetId int32)
 
 	response, err := wrapper.postSheetRequest(fmt.Sprintf(updateSheetUrl, spreadSheetId), body)
 	if response != nil {
-		response.Close()
+		defer func() {
+			if closeErr := response.Close(); closeErr != nil && err == nil {
+				err = closeErr
+			}
+		}()
 	}
 
 	if err != nil {
@@ -119,7 +123,11 @@ func (wrapper SheetsApiWrapper) GetSheetData(spreadSheetId string, sheetName str
 		return nil, fmt.Errorf("could not get sheet from url '%s'\nerror %d: %s", url, resp.StatusCode, resp.Status)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil && err == nil {
+			err = closeErr
+		}
+	}()
 	return truncateExtraneousData(resp.Body)
 }
 
@@ -181,7 +189,11 @@ func (wrapper SheetsApiWrapper) AppendToSheet(spreadSheetId string, sheetName st
 
 	response, err := wrapper.postSheetRequestQueryParameter(fmt.Sprintf(appendSheetUrl, spreadSheetId, sheetName), body, queryParameters)
 	if response != nil {
-		response.Close()
+		defer func() {
+			if closeErr := response.Close(); closeErr != nil && err == nil {
+				err = closeErr
+			}
+		}()
 	}
 	if err != nil {
 		return err
@@ -261,7 +273,11 @@ func (wrapper SheetsApiWrapper) createJSONPostRequest(url string, body any) (req
 }
 
 func deserialize[T any](reader io.ReadCloser, in any) (err error) {
-	defer reader.Close()
+	defer func() {
+		if closeErr := reader.Close(); closeErr != nil && err == nil {
+			err = closeErr
+		}
+	}()
 	bytes, err := io.ReadAll(reader)
 	if err != nil {
 		return err
